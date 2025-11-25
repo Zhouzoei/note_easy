@@ -64,7 +64,7 @@ public class FirstActivity extends AppCompatActivity {
     private ImageButton photoButton, voiceButton, moodButton, tagButton;
     private ImageView imagePreview;
     private Button removeImageButton;
-    private TextView moodText, tagText, emptyStateText;
+    private TextView moodText, tagText, emptyStateText, todayRecordsTitle;
 
     private String selectedMood = "";
     private String selectedTag = "";
@@ -73,7 +73,10 @@ public class FirstActivity extends AppCompatActivity {
     private Bitmap selectedImageBitmap;
 
     private List<Note> notesList = new ArrayList<>();
+    private List<Note> todayNotesList = new ArrayList<>(); // 当天的笔记列表
     private Gson gson = new Gson();
+    private Button statisticsButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +86,16 @@ public class FirstActivity extends AppCompatActivity {
         initViews();
         setupListeners();
         loadNotesFromFile();
+        updateTodayNotes(); // 初始化当天笔记
+        refreshNotesDisplay();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 每次回到应用时更新当天笔记（防止跨天）
+        updateTodayNotes();
+        refreshNotesDisplay();
     }
 
     @Override
@@ -111,6 +124,17 @@ public class FirstActivity extends AppCompatActivity {
         moodText = findViewById(R.id.moodText);
         tagText = findViewById(R.id.tagText);
         emptyStateText = findViewById(R.id.emptyStateText);
+        todayRecordsTitle = findViewById(R.id.todayRecordsTitle);
+        statisticsButton = findViewById(R.id.statisticsButton);
+
+        // 更新标题显示当天日期
+        updateTitleWithDate();
+    }
+
+    private void updateTitleWithDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault());
+        String currentDate = dateFormat.format(new Date());
+        todayRecordsTitle.setText("今日记录 - " + currentDate);
     }
 
     private void setupListeners() {
@@ -166,6 +190,13 @@ public class FirstActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(FirstActivity.this, "语音功能开发中", Toast.LENGTH_SHORT).show();
+            }
+        });
+        statisticsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FirstActivity.this, StatisticsActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -296,7 +327,7 @@ public class FirstActivity extends AppCompatActivity {
             imagePath = saveImageToInternalStorage(selectedImageBitmap);
         }
 
-        // 创建笔记对象
+        // 创建笔记对象（会自动设置当前日期）
         String noteId = String.valueOf(System.currentTimeMillis());
         Note newNote = new Note(noteId, content, currentTime, selectedMood, selectedTag, hasPhoto, imagePath);
         notesList.add(0, newNote);
@@ -304,11 +335,36 @@ public class FirstActivity extends AppCompatActivity {
         // 立即保存到文件
         saveNotesToFile();
 
-        // 刷新UI
+        // 更新当天笔记列表并刷新显示
+        updateTodayNotes();
         refreshNotesDisplay();
 
         resetInputState();
         Toast.makeText(this, "笔记已添加", Toast.LENGTH_SHORT).show();
+    }
+
+    // 更新当天笔记列表
+    private void updateTodayNotes() {
+        todayNotesList.clear();
+
+        // 获取当前日期
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String currentDate = dateFormat.format(new Date());
+
+        // 过滤出当天的笔记
+        for (Note note : notesList) {
+            if (currentDate.equals(note.getDate())) {
+                todayNotesList.add(note);
+            }
+        }
+
+        // 按时间戳倒序排列（最新的在前面）
+        Collections.sort(todayNotesList, new Comparator<Note>() {
+            @Override
+            public int compare(Note n1, Note n2) {
+                return Long.compare(n2.getTimestamp(), n1.getTimestamp());
+            }
+        });
     }
 
     private String saveImageToInternalStorage(Bitmap bitmap) {
@@ -343,31 +399,34 @@ public class FirstActivity extends AppCompatActivity {
     private void refreshNotesDisplay() {
         timelineContainer.removeAllViews();
 
-        if (notesList.isEmpty()) {
+        if (todayNotesList.isEmpty()) {
             emptyStateText.setVisibility(View.VISIBLE);
             timelineContainer.setVisibility(View.GONE);
         } else {
             emptyStateText.setVisibility(View.GONE);
             timelineContainer.setVisibility(View.VISIBLE);
 
-            // 按时间戳倒序排列（最新的在前面）
-            Collections.sort(notesList, new Comparator<Note>() {
-                @Override
-                public int compare(Note n1, Note n2) {
-                    return Long.compare(n2.getTimestamp(), n1.getTimestamp());
-                }
-            });
-
-            for (int i = 0; i < notesList.size(); i++) {
-                Note note = notesList.get(i);
+            for (int i = 0; i < todayNotesList.size(); i++) {
+                Note note = todayNotesList.get(i);
                 View noteView = createNoteViewWithDeleteButton(note, i);
                 timelineContainer.addView(noteView);
             }
         }
+
+        // 显示统计信息
+        showNotesStatistics();
+    }
+
+    private void showNotesStatistics() {
+        int totalNotes = notesList.size();
+        int todayNotes = todayNotesList.size();
+
+        // 可以在标题或其他位置显示统计信息
+        // 例如：Toast.makeText(this, "今日笔记：" + todayNotes + "条，总笔记：" + totalNotes + "条", Toast.LENGTH_SHORT).show();
     }
 
     private View createNoteViewWithDeleteButton(Note note, int position) {
-        // 创建主容器 - 使用相对布局来定位删除按钮
+        // 创建主容器
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
@@ -466,7 +525,7 @@ public class FirstActivity extends AppCompatActivity {
         deleteButton.setLayoutParams(deleteParams);
 
         // 设置删除按钮点击事件
-        final int notePosition = position;
+        final int notePosition = findNoteInAllList(note);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -528,6 +587,16 @@ public class FirstActivity extends AppCompatActivity {
         return noteLayout;
     }
 
+    // 在全部笔记列表中查找笔记的位置
+    private int findNoteInAllList(Note note) {
+        for (int i = 0; i < notesList.size(); i++) {
+            if (notesList.get(i).getId().equals(note.getId())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void showDeleteConfirmation(int position) {
         new AlertDialog.Builder(this)
                 .setTitle("删除笔记")
@@ -555,6 +624,7 @@ public class FirstActivity extends AppCompatActivity {
 
             notesList.remove(position);
             saveNotesToFile();
+            updateTodayNotes(); // 更新当天笔记列表
             refreshNotesDisplay();
             Toast.makeText(this, "笔记已删除", Toast.LENGTH_SHORT).show();
         }
@@ -674,10 +744,8 @@ public class FirstActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             notesList.clear();
-            Toast.makeText(this, "没有找到已保存的笔记", Toast.LENGTH_SHORT).show();
+            // 首次使用，没有保存的笔记
         }
-
-        refreshNotesDisplay();
     }
 
     private void resetInputState() {
