@@ -61,7 +61,7 @@ public class FirstActivity extends AppCompatActivity {
     private Button confirmButton;
     private LinearLayout timelineContainer;
     private LinearLayout imagePreviewLayout;
-    private ImageButton photoButton, voiceButton, moodButton, tagButton;
+    private LinearLayout photoLayout, voiceLayout, moodLayout, tagLayout;
     private ImageView imagePreview;
     private Button removeImageButton;
     private TextView moodText, tagText, emptyStateText, todayRecordsTitle;
@@ -117,15 +117,14 @@ public class FirstActivity extends AppCompatActivity {
         imagePreviewLayout = findViewById(R.id.imagePreviewLayout);
         imagePreview = findViewById(R.id.imagePreview);
         removeImageButton = findViewById(R.id.removeImageButton);
-        photoButton = findViewById(R.id.photoButton);
-        voiceButton = findViewById(R.id.voiceButton);
-        moodButton = findViewById(R.id.moodButton);
-        tagButton = findViewById(R.id.tagButton);
+        photoLayout = findViewById(R.id.photoLayout);
+        voiceLayout = findViewById(R.id.voiceLayout);
+        moodLayout = findViewById(R.id.moodLayout);
+        tagLayout = findViewById(R.id.tagLayout);
         moodText = findViewById(R.id.moodText);
         tagText = findViewById(R.id.tagText);
         emptyStateText = findViewById(R.id.emptyStateText);
         todayRecordsTitle = findViewById(R.id.todayRecordsTitle);
-        statisticsButton = findViewById(R.id.statisticsButton);
 
         // 更新标题显示当天日期
         updateTitleWithDate();
@@ -158,7 +157,7 @@ public class FirstActivity extends AppCompatActivity {
             }
         });
 
-        photoButton.setOnClickListener(new View.OnClickListener() {
+        photoLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showImageSourceDialog();
@@ -172,31 +171,24 @@ public class FirstActivity extends AppCompatActivity {
             }
         });
 
-        moodButton.setOnClickListener(new View.OnClickListener() {
+        moodLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showMoodSelection();
             }
         });
 
-        tagButton.setOnClickListener(new View.OnClickListener() {
+        tagLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showTagSelection();
             }
         });
 
-        voiceButton.setOnClickListener(new View.OnClickListener() {
+        voiceLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(FirstActivity.this, "语音功能开发中", Toast.LENGTH_SHORT).show();
-            }
-        });
-        statisticsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FirstActivity.this, StatisticsActivity.class);
-                startActivity(intent);
             }
         });
     }
@@ -794,4 +786,39 @@ public class FirstActivity extends AppCompatActivity {
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
-}
+
+
+
+        private void setSelectedTab(LinearLayout selectedTab) {
+            // 重置所有标签样式
+            resetTabStyles();
+
+            // 设置选中标签的样式
+            selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
+
+            // 获取图标和文字并设置选中颜色
+            TextView iconText = (TextView) ((LinearLayout) selectedTab.getChildAt(0)).getChildAt(0);
+            TextView labelText = (TextView) ((LinearLayout) selectedTab.getChildAt(0)).getChildAt(1);
+
+            iconText.setTextColor(Color.parseColor("#2196F3"));
+            labelText.setTextColor(Color.parseColor("#2196F3"));
+        }
+
+        private void resetTabStyles() {
+            LinearLayout navRecord = findViewById(R.id.nav_record);
+            LinearLayout navOrganize = findViewById(R.id.nav_organize);
+            LinearLayout navStats = findViewById(R.id.nav_stats);
+            LinearLayout navProfile = findViewById(R.id.nav_profile);
+
+            LinearLayout[] tabs = {navRecord, navOrganize, navStats, navProfile};
+
+            for (LinearLayout tab : tabs) {
+                tab.setBackgroundColor(Color.TRANSPARENT);
+                TextView iconText = (TextView) ((LinearLayout) tab.getChildAt(0)).getChildAt(0);
+                TextView labelText = (TextView) ((LinearLayout) tab.getChildAt(0)).getChildAt(1);
+
+                iconText.setTextColor(Color.BLACK);
+                labelText.setTextColor(Color.BLACK);
+            }
+        }
+    }

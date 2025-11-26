@@ -16,15 +16,12 @@
         <!-- 设置LoginActivity为启动Activity -->
         <activity
             android:name=".LoginActivity"
-            android:exported="true"
-            android:label="work"
-            android:theme="@style/Theme.FinalWork">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- 注册Activity -->
+        </activity>
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
@@ -41,7 +38,6 @@
             android:name=".StatisticsActivity"
             android:label="笔记统计"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
