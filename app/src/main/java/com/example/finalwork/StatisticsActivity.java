@@ -6,6 +6,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,6 +38,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         initViews();
         loadNotes();
+        setupBottomNavigation();
         calculateAndDisplayStatistics();
     }
 
@@ -366,4 +368,66 @@ public class StatisticsActivity extends AppCompatActivity {
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
-}
+
+    private void setupBottomNavigation() {
+        LinearLayout navRecord = findViewById(R.id.nav_record);
+        LinearLayout navOrganize = findViewById(R.id.nav_organize);
+        LinearLayout navStats = findViewById(R.id.nav_stats);
+        LinearLayout navProfile = findViewById(R.id.nav_profile);
+
+        setSelectedTab(navStats);
+
+        // 记录页面
+        navRecord.setOnClickListener(v -> {
+            Intent recordIntent = new Intent(StatisticsActivity.this, FirstActivity.class);
+            startActivity(recordIntent);
+            finish(); // 关闭当前统计页面
+        });
+
+        // 整理页面
+        navOrganize.setOnClickListener(v -> {
+            Intent organizeIntent = new Intent(StatisticsActivity.this, OrganizeActivity.class);
+            startActivity(organizeIntent);
+            finish();
+        });
+
+        // 统计页面 - 不需要跳转
+        navStats.setOnClickListener(v -> setSelectedTab(navStats));
+
+        // 个人页面
+        navProfile.setOnClickListener(v -> {
+            Intent profileIntent = new Intent(StatisticsActivity.this, MainActivity.class);
+            startActivity(profileIntent);
+            finish();
+        });
+    }
+
+        private void setSelectedTab(LinearLayout selectedTab) {
+            resetTabStyles();
+            selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
+
+            TextView iconText = (TextView) selectedTab.getChildAt(0);
+            TextView labelText = (TextView) selectedTab.getChildAt(1);
+
+            iconText.setTextColor(Color.parseColor("#2196F3"));
+            labelText.setTextColor(Color.parseColor("#2196F3"));
+        }
+
+        private void resetTabStyles() {
+            int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
+
+            for (int id : navIds) {
+                LinearLayout tab = findViewById(id);
+                if (tab != null) {
+                    tab.setBackgroundColor(Color.TRANSPARENT);
+
+                    TextView iconText = (TextView) tab.getChildAt(0);
+                    TextView labelText = (TextView) tab.getChildAt(1);
+
+                    if (iconText != null) iconText.setTextColor(Color.BLACK);
+                    if (labelText != null) labelText.setTextColor(Color.BLACK);
+                }
+            }
+        }
+
+    }
