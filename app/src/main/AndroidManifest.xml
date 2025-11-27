@@ -38,6 +38,9 @@
             android:name=".StatisticsActivity"
             android:label="笔记统计"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name=".OrganizeActivity"
+            android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.UserManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -85,6 +86,7 @@ public class FirstActivity extends AppCompatActivity {
 
         initViews();
         setupListeners();
+        setupBottomNavigation();
         loadNotesFromFile();
         updateTodayNotes(); // 初始化当天笔记
         refreshNotesDisplay();
@@ -788,37 +790,100 @@ public class FirstActivity extends AppCompatActivity {
     }
 
 
+    private void setupBottomNavigation() {
+        LinearLayout navRecord = findViewById(R.id.nav_record);
+        LinearLayout navOrganize = findViewById(R.id.nav_organize);
+        LinearLayout navStats = findViewById(R.id.nav_stats);
+        LinearLayout navProfile = findViewById(R.id.nav_profile);
+
+        // 设置当前页面为选中状态
+        setSelectedTab(navRecord);
+
+        // 记录页面 - 不需要跳转，只需更新样式
+        navRecord.setOnClickListener(v -> setSelectedTab(navRecord));
+
+        // 整理页面
+        navOrganize.setOnClickListener(v -> {
+            Intent organizeIntent = new Intent(FirstActivity.this, OrganizeActivity.class);
+            startActivity(organizeIntent);
+        });
+
+        // 统计页面
+        navStats.setOnClickListener(v -> {
+            Intent statsIntent = new Intent(FirstActivity.this, StatisticsActivity.class);
+            startActivity(statsIntent);
+        });
+
+        // 个人页面
+        navProfile.setOnClickListener(v -> {
+            Intent profileIntent = new Intent(FirstActivity.this, MainActivity.class);
+            startActivity(profileIntent);
+        });
+    }
 
         private void setSelectedTab(LinearLayout selectedTab) {
-            // 重置所有标签样式
             resetTabStyles();
-
-            // 设置选中标签的样式
             selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
 
-            // 获取图标和文字并设置选中颜色
-            TextView iconText = (TextView) ((LinearLayout) selectedTab.getChildAt(0)).getChildAt(0);
-            TextView labelText = (TextView) ((LinearLayout) selectedTab.getChildAt(0)).getChildAt(1);
+            // 更安全的获取子View方式
+            if (selectedTab.getChildCount() > 0) {
+                View firstChild = selectedTab.getChildAt(0);
+                if (firstChild instanceof LinearLayout) {
+                    // 如果是嵌套的LinearLayout
+                    LinearLayout innerLayout = (LinearLayout) firstChild;
+                    if (innerLayout.getChildCount() >= 2) {
+                        TextView iconText = (TextView) innerLayout.getChildAt(0);
+                        TextView labelText = (TextView) innerLayout.getChildAt(1);
 
-            iconText.setTextColor(Color.parseColor("#2196F3"));
-            labelText.setTextColor(Color.parseColor("#2196F3"));
+                        iconText.setTextColor(Color.parseColor("#2196F3"));
+                        labelText.setTextColor(Color.parseColor("#2196F3"));
+                    }
+                } else {
+                    // 如果是直接包含两个TextView
+                    if (selectedTab.getChildCount() >= 2) {
+                        TextView iconText = (TextView) selectedTab.getChildAt(0);
+                        TextView labelText = (TextView) selectedTab.getChildAt(1);
+
+                        iconText.setTextColor(Color.parseColor("#2196F3"));
+                        labelText.setTextColor(Color.parseColor("#2196F3"));
+                    }
+                }
+            }
         }
 
         private void resetTabStyles() {
-            LinearLayout navRecord = findViewById(R.id.nav_record);
-            LinearLayout navOrganize = findViewById(R.id.nav_organize);
-            LinearLayout navStats = findViewById(R.id.nav_stats);
-            LinearLayout navProfile = findViewById(R.id.nav_profile);
+            int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
 
-            LinearLayout[] tabs = {navRecord, navOrganize, navStats, navProfile};
+            for (int id : navIds) {
+                LinearLayout tab = findViewById(id);
+                if (tab != null) {
+                    tab.setBackgroundColor(Color.TRANSPARENT);
 
-            for (LinearLayout tab : tabs) {
-                tab.setBackgroundColor(Color.TRANSPARENT);
-                TextView iconText = (TextView) ((LinearLayout) tab.getChildAt(0)).getChildAt(0);
-                TextView labelText = (TextView) ((LinearLayout) tab.getChildAt(0)).getChildAt(1);
+                    if (tab.getChildCount() > 0) {
+                        View firstChild = tab.getChildAt(0);
+                        if (firstChild instanceof LinearLayout) {
+                            // 嵌套布局的情况
+                            LinearLayout innerLayout = (LinearLayout) firstChild;
+                            if (innerLayout.getChildCount() >= 2) {
+                                TextView iconText = (TextView) innerLayout.getChildAt(0);
+                                TextView labelText = (TextView) innerLayout.getChildAt(1);
 
-                iconText.setTextColor(Color.BLACK);
-                labelText.setTextColor(Color.BLACK);
+                                if (iconText != null) iconText.setTextColor(Color.BLACK);
+                                if (labelText != null) labelText.setTextColor(Color.BLACK);
+                            }
+                        } else {
+                            // 直接包含的情况
+                            if (tab.getChildCount() >= 2) {
+                                TextView iconText = (TextView) tab.getChildAt(0);
+                                TextView labelText = (TextView) tab.getChildAt(1);
+
+                                if (iconText != null) iconText.setTextColor(Color.BLACK);
+                                if (labelText != null) labelText.setTextColor(Color.BLACK);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+
