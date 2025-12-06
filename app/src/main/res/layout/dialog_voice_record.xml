@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="24dp"
+    android:minHeight="300dp">
+
+    <!-- 标题和关闭按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="语音记录"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A" />
+
+        <TextView
+            android:id="@+id/btnClose"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="❌"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!-- 录音状态 -->
+    <TextView
+        android:id="@+id/tvRecordingStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="点击下方按钮开始录音"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 录音时间 -->
+    <TextView
+        android:id="@+id/tvRecordingTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#1A1A1A"
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <!-- 录音按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp">
+
+            <!-- 圆形背景 -->
+            <View
+                android:id="@+id/circleBackground"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:background="@drawable/bg_circle_gradient"
+                android:alpha="0.2" />
+
+            <!-- 录音按钮（用Emoji代替图标） -->
+            <TextView
+                android:id="@+id/btnRecord"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:text="🎤"
+                android:textSize="36sp"
+                android:gravity="center"
+                android:background="@drawable/bg_record_circle"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- 录音动画波纹 -->
+            <View
+                android:id="@+id/rippleEffect"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_ripple"
+                android:visibility="invisible" />
+        </FrameLayout>
+
+        <!-- 录音提示 -->
+        <TextView
+            android:id="@+id/tvRecordHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击录音，再次点击结束"
+            android:textSize="14sp"
+            android:textColor="#999999"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+    <!-- 录音预览区域（录音后显示） -->
+    <LinearLayout
+        android:id="@+id/playbackSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="录音预览"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="#F5F5F5"
+            android:padding="12dp">
+
+            <!-- 播放按钮（用Emoji） -->
+            <TextView
+                android:id="@+id/btnPlay"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="▶️"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp" />
+
+            <!-- 播放进度 -->
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:progress="0"
+                android:max="100"
+                android:progressTint="#4CAF50"
+                android:thumbTint="#4CAF50" />
+
+            <!-- 播放时间 -->
+            <TextView
+                android:id="@+id/tvPlayTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textSize="12sp"
+                android:textColor="#666666" />
+        </LinearLayout>
+
+        <!-- 操作按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btnDiscard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="重录"
+                android:textColor="#666666"
+                android:background="@drawable/bg_outline_button"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnUseAudio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="使用录音"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_primary_button"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

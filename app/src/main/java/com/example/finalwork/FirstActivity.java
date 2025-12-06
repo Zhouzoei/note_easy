@@ -7,11 +7,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.UserManager;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -55,6 +56,8 @@ public class FirstActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 3;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 4;
+    private static final int REQUEST_CAMERA_PERMISSION = 5; // 添加相机权限请求码
 
     private static final String NOTES_FILE = "notes.json";
 
@@ -67,17 +70,24 @@ public class FirstActivity extends AppCompatActivity {
     private Button removeImageButton;
     private TextView moodText, tagText, emptyStateText, todayRecordsTitle;
 
+    // 语音预览相关
+    private LinearLayout voicePreviewLayout;
+    private TextView voicePreviewIcon, voicePreviewDuration, voicePreviewStatus;
+    private Button removeVoiceButton;
+
     private String selectedMood = "";
     private String selectedTag = "";
     private boolean hasPhoto = false;
+    private boolean hasVoice = false;
+    private String currentAudioPath = null;
+    private long audioDuration = 0;
     private Uri selectedImageUri;
     private Bitmap selectedImageBitmap;
 
     private List<Note> notesList = new ArrayList<>();
-    private List<Note> todayNotesList = new ArrayList<>(); // 当天的笔记列表
+    private List<Note> todayNotesList = new ArrayList<>();
     private Gson gson = new Gson();
     private Button statisticsButton;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,14 +98,13 @@ public class FirstActivity extends AppCompatActivity {
         setupListeners();
         setupBottomNavigation();
         loadNotesFromFile();
-        updateTodayNotes(); // 初始化当天笔记
+        updateTodayNotes();
         refreshNotesDisplay();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // 每次回到应用时更新当天笔记（防止跨天）
         updateTodayNotes();
         refreshNotesDisplay();
     }
@@ -128,7 +137,13 @@ public class FirstActivity extends AppCompatActivity {
         emptyStateText = findViewById(R.id.emptyStateText);
         todayRecordsTitle = findViewById(R.id.todayRecordsTitle);
 
-        // 更新标题显示当天日期
+        // 初始化语音预览组件
+        voicePreviewLayout = findViewById(R.id.voicePreviewLayout);
+        voicePreviewIcon = findViewById(R.id.voicePreviewIcon);
+        voicePreviewDuration = findViewById(R.id.voicePreviewDuration);
+        voicePreviewStatus = findViewById(R.id.voicePreviewStatus);
+        removeVoiceButton = findViewById(R.id.removeVoiceButton);
+
         updateTitleWithDate();
     }
 
@@ -190,17 +205,137 @@ public class FirstActivity extends AppCompatActivity {
         voiceLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(FirstActivity.this, "语音功能开发中", Toast.LENGTH_SHORT).show();
+                showVoiceRecordingDialog();
             }
         });
     }
 
     private void YOUR_API_KEY_HERE() {
-        if (inputArea.getText().toString().trim().length() > 0 || hasPhoto) {
+        if (inputArea.getText().toString().trim().length() > 0 || hasPhoto || hasVoice) {
             confirmButton.setVisibility(View.VISIBLE);
         } else {
             confirmButton.setVisibility(View.GONE);
         }
+    }
+
+    private void showVoiceRecordingDialog() {
+        VoiceRecordDialog dialog = new VoiceRecordDialog(this, new VoiceRecordDialog.OnAudioRecordedListener() {
+            @Override
+            public void onAudioRecorded(String audioPath, long duration) {
+                // 处理录音完成
+                currentAudioPath = audioPath;
+                audioDuration = duration;
+                hasVoice = true;
+                YOUR_API_KEY_HERE();
+
+                // 显示语音预览
+                showVoiceAddedToast(duration);
+            }
+
+            @Override
+            public void onRecordingCancelled() {
+                // 录音取消，清空语音数据
+                resetVoiceRecording();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void showVoiceAddedToast(long duration) {
+        String durationText = formatDuration(duration);
+
+        // 显示语音预览
+        voicePreviewDuration.setText(durationText);
+        voicePreviewStatus.setText("已录制");
+        voicePreviewLayout.setVisibility(View.VISIBLE);
+
+        // 设置语音预览点击播放
+        voicePreviewLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPreviewVoice();
+            }
+        });
+
+        // 设置删除按钮点击事件
+        removeVoiceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeVoiceRecording();
+            }
+        });
+
+        Toast.makeText(this, "语音已添加 (" + durationText + ")", Toast.LENGTH_SHORT).show();
+    }
+
+    // 播放预览中的语音
+    private void playPreviewVoice() {
+        if (currentAudioPath == null || currentAudioPath.isEmpty()) {
+            Toast.makeText(this, "没有可用的语音", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(currentAudioPath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+
+            // 更新预览状态
+            voicePreviewIcon.setText("⏸️");
+            voicePreviewStatus.setText("正在播放...");
+
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                    voicePreviewIcon.setText("🔊");
+                    voicePreviewStatus.setText("已录制");
+                }
+            });
+
+            Toast.makeText(this, "正在播放语音", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void removeVoiceRecording() {
+        // 删除语音文件
+        if (currentAudioPath != null) {
+            File voiceFile = new File(currentAudioPath);
+            if (voiceFile.exists()) {
+                voiceFile.delete();
+            }
+        }
+
+        // 重置语音相关状态
+        resetVoiceRecording();
+    }
+
+
+    private String formatDuration(long duration) {
+        long seconds = duration / 1000;
+        long minutes = seconds / 60;
+        seconds = seconds % 60;
+
+        if (minutes > 0) {
+            return String.format("%02d:%02d", minutes, seconds);
+        } else {
+            return String.format("00:%02d", seconds);
+        }
+    }
+
+    private void resetVoiceRecording() {
+        hasVoice = false;
+        currentAudioPath = null;
+        audioDuration = 0;
+        voicePreviewLayout.setVisibility(View.GONE); // 隐藏预览
+        YOUR_API_KEY_HERE();
+        Toast.makeText(this, "语音已删除", Toast.LENGTH_SHORT).show();
     }
 
     private void showImageSourceDialog() {
@@ -228,6 +363,33 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent() {
+        // 检查相机权限
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // 请求相机权限
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    REQUEST_CAMERA_PERMISSION);
+            return;
+        }
+
+        // 检查存储权限（Android 10以下需要）
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // 请求存储权限
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_WRITE_EXTERNAL_STORAGE);
+                return;
+            }
+        }
+
+        // 权限都通过，开始拍照
+        startCameraIntent();
+    }
+
+    private void startCameraIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
@@ -243,6 +405,11 @@ public class FirstActivity extends AppCompatActivity {
                         getApplicationContext().getPackageName() + ".fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImageUri);
+
+                // 添加URI权限（重要！）
+                takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         } else {
@@ -307,8 +474,8 @@ public class FirstActivity extends AppCompatActivity {
 
     private void addNewNote() {
         String content = inputArea.getText().toString().trim();
-        if (content.isEmpty() && !hasPhoto) {
-            Toast.makeText(this, "请输入内容或添加图片", Toast.LENGTH_SHORT).show();
+        if (content.isEmpty() && !hasPhoto && !hasVoice) {
+            Toast.makeText(this, "请输入内容、添加图片或录音", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -321,9 +488,13 @@ public class FirstActivity extends AppCompatActivity {
             imagePath = saveImageToInternalStorage(selectedImageBitmap);
         }
 
-        // 创建笔记对象（会自动设置当前日期）
+        // 语音文件路径（已保存在指定位置）
+        String voicePath = currentAudioPath;
+
+        // 创建笔记对象
         String noteId = String.valueOf(System.currentTimeMillis());
-        Note newNote = new Note(noteId, content, currentTime, selectedMood, selectedTag, hasPhoto, imagePath);
+        Note newNote = new Note(noteId, content, currentTime, selectedMood, selectedTag,
+                hasPhoto, imagePath, hasVoice, voicePath, audioDuration);
         notesList.add(0, newNote);
 
         // 立即保存到文件
@@ -341,18 +512,15 @@ public class FirstActivity extends AppCompatActivity {
     private void updateTodayNotes() {
         todayNotesList.clear();
 
-        // 获取当前日期
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String currentDate = dateFormat.format(new Date());
 
-        // 过滤出当天的笔记
         for (Note note : notesList) {
             if (currentDate.equals(note.getDate())) {
                 todayNotesList.add(note);
             }
         }
 
-        // 按时间戳倒序排列（最新的在前面）
         Collections.sort(todayNotesList, new Comparator<Note>() {
             @Override
             public int compare(Note n1, Note n2) {
@@ -407,20 +575,15 @@ public class FirstActivity extends AppCompatActivity {
             }
         }
 
-        // 显示统计信息
         showNotesStatistics();
     }
 
     private void showNotesStatistics() {
         int totalNotes = notesList.size();
         int todayNotes = todayNotesList.size();
-
-        // 可以在标题或其他位置显示统计信息
-        // 例如：Toast.makeText(this, "今日笔记：" + todayNotes + "条，总笔记：" + totalNotes + "条", Toast.LENGTH_SHORT).show();
     }
 
     private View YOUR_API_KEY_HERE(Note note, int position) {
-        // 创建主容器
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
@@ -430,7 +593,6 @@ public class FirstActivity extends AppCompatActivity {
         containerParams.setMargins(0, 0, 0, dpToPx(16));
         container.setLayoutParams(containerParams);
 
-        // 创建笔记内容布局（包含删除按钮）
         LinearLayout noteContentLayout = createNoteLayoutWithDelete(note, position);
         container.addView(noteContentLayout);
 
@@ -438,7 +600,6 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     private LinearLayout createNoteLayoutWithDelete(Note note, int position) {
-        // 创建主笔记布局
         LinearLayout noteLayout = new LinearLayout(this);
         noteLayout.setOrientation(LinearLayout.VERTICAL);
         noteLayout.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
@@ -448,7 +609,6 @@ public class FirstActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
 
-        // 创建顶部行（时间 + 删除按钮）
         LinearLayout topRow = new LinearLayout(this);
         topRow.setOrientation(LinearLayout.HORIZONTAL);
         topRow.setLayoutParams(new LinearLayout.LayoutParams(
@@ -457,7 +617,6 @@ public class FirstActivity extends AppCompatActivity {
         ));
         topRow.setGravity(Gravity.CENTER_VERTICAL);
 
-        // 时间文本
         TextView timeText = new TextView(this);
         timeText.setText(note.getTime());
         timeText.setTextSize(12);
@@ -470,7 +629,6 @@ public class FirstActivity extends AppCompatActivity {
         timeText.setLayoutParams(timeParams);
         topRow.addView(timeText);
 
-        // 心情标签
         if (note.getMood() != null && !note.getMood().isEmpty()) {
             TextView moodView = new TextView(this);
             moodView.setText(" " + note.getMood());
@@ -488,7 +646,6 @@ public class FirstActivity extends AppCompatActivity {
             topRow.addView(moodView);
         }
 
-        // 标签
         if (note.getTag() != null && !note.getTag().isEmpty()) {
             TextView tagView = new TextView(this);
             tagView.setText(" " + note.getTag());
@@ -506,7 +663,6 @@ public class FirstActivity extends AppCompatActivity {
             topRow.addView(tagView);
         }
 
-        // 删除按钮（小叉号）
         ImageButton deleteButton = new ImageButton(this);
         deleteButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
         deleteButton.setBackgroundColor(Color.TRANSPARENT);
@@ -518,7 +674,6 @@ public class FirstActivity extends AppCompatActivity {
         deleteParams.setMargins(dpToPx(8), 0, 0, 0);
         deleteButton.setLayoutParams(deleteParams);
 
-        // 设置删除按钮点击事件
         final int notePosition = findNoteInAllList(note);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -530,7 +685,6 @@ public class FirstActivity extends AppCompatActivity {
         topRow.addView(deleteButton);
         noteLayout.addView(topRow);
 
-        // 内容文本
         if (note.getContent() != null && !note.getContent().isEmpty()) {
             TextView contentText = new TextView(this);
             contentText.setText(note.getContent());
@@ -545,7 +699,18 @@ public class FirstActivity extends AppCompatActivity {
             noteLayout.addView(contentText);
         }
 
-        // 图片
+        // 显示语音
+        if (note.hasVoice() && note.getVoicePath() != null) {
+            LinearLayout voiceLayout = createVoiceView(note);
+            LinearLayout.LayoutParams voiceParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            voiceParams.setMargins(0, dpToPx(8), 0, 0);
+            voiceLayout.setLayoutParams(voiceParams);
+            noteLayout.addView(voiceLayout);
+        }
+
         if (note.hasPhoto() && note.getImagePath() != null) {
             ImageView photoView = new ImageView(this);
             photoView.setLayoutParams(new LinearLayout.LayoutParams(
@@ -555,7 +720,6 @@ public class FirstActivity extends AppCompatActivity {
             photoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             photoView.setBackgroundResource(R.drawable.bg_dashed_border);
 
-            // 从本地加载图片
             Bitmap bitmap = loadImageFromStorage(note.getImagePath());
             if (bitmap != null) {
                 photoView.setImageBitmap(bitmap);
@@ -581,7 +745,64 @@ public class FirstActivity extends AppCompatActivity {
         return noteLayout;
     }
 
-    // 在全部笔记列表中查找笔记的位置
+    private LinearLayout createVoiceView(Note note) {
+        LinearLayout voiceLayout = new LinearLayout(this);
+        voiceLayout.setOrientation(LinearLayout.HORIZONTAL);
+        voiceLayout.setBackgroundResource(R.drawable.bg_voice_border);
+        voiceLayout.setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
+        voiceLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView voiceIcon = new TextView(this);
+        voiceIcon.setText("🔊");
+        voiceIcon.setTextSize(18);
+        voiceIcon.setPadding(0, 0, dpToPx(8), 0);
+        voiceLayout.addView(voiceIcon);
+
+        TextView voiceDuration = new TextView(this);
+        if (note.getAudioDuration() > 0) {
+            voiceDuration.setText(formatDuration(note.getAudioDuration()));
+        } else {
+            voiceDuration.setText("语音");
+        }
+        voiceDuration.setTextSize(14);
+        voiceDuration.setTextColor(Color.parseColor("#666666"));
+        voiceLayout.addView(voiceDuration);
+
+        // 添加点击播放功能
+        voiceLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playVoiceNote(note.getVoicePath());
+            }
+        });
+
+        return voiceLayout;
+    }
+
+    private void playVoiceNote(String voicePath) {
+        if (voicePath == null || voicePath.isEmpty()) return;
+
+        try {
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(voicePath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+
+            Toast.makeText(this, "正在播放语音", Toast.LENGTH_SHORT).show();
+
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                }
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private int findNoteInAllList(Note note) {
         for (int i = 0; i < notesList.size(); i++) {
             if (notesList.get(i).getId().equals(note.getId())) {
@@ -607,8 +828,8 @@ public class FirstActivity extends AppCompatActivity {
 
     private void deleteNote(int position) {
         if (position >= 0 && position < notesList.size()) {
-            // 删除对应的图片文件
             Note note = notesList.get(position);
+
             if (note.hasPhoto() && note.getImagePath() != null) {
                 File imageFile = new File(note.getImagePath());
                 if (imageFile.exists()) {
@@ -616,9 +837,16 @@ public class FirstActivity extends AppCompatActivity {
                 }
             }
 
+            if (note.hasVoice() && note.getVoicePath() != null) {
+                File voiceFile = new File(note.getVoicePath());
+                if (voiceFile.exists()) {
+                    voiceFile.delete();
+                }
+            }
+
             notesList.remove(position);
             saveNotesToFile();
-            updateTodayNotes(); // 更新当天笔记列表
+            updateTodayNotes();
             refreshNotesDisplay();
             Toast.makeText(this, "笔记已删除", Toast.LENGTH_SHORT).show();
         }
@@ -673,6 +901,7 @@ public class FirstActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (selectedImageBitmap != null) {
@@ -680,6 +909,15 @@ public class FirstActivity extends AppCompatActivity {
                 }
             } else {
                 Toast.makeText(this, "需要存储权限才能保存图片", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 相机权限被授予，重新尝试拍照
+                startCameraIntent();
+            } else {
+                Toast.makeText(this, "需要相机权限才能拍照", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -738,7 +976,6 @@ public class FirstActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             notesList.clear();
-            // 首次使用，没有保存的笔记
         }
     }
 
@@ -746,9 +983,13 @@ public class FirstActivity extends AppCompatActivity {
         inputArea.setText("");
         confirmButton.setVisibility(View.GONE);
         imagePreviewLayout.setVisibility(View.GONE);
+        voicePreviewLayout.setVisibility(View.GONE); // 隐藏语音预览
         selectedMood = "";
         selectedTag = "";
         hasPhoto = false;
+        hasVoice = false;
+        currentAudioPath = null;
+        audioDuration = 0;
         selectedImageUri = null;
         selectedImageBitmap = null;
         moodText.setText("心情");
@@ -789,101 +1030,89 @@ public class FirstActivity extends AppCompatActivity {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
-
     private void setupBottomNavigation() {
         LinearLayout navRecord = findViewById(R.id.nav_record);
         LinearLayout navOrganize = findViewById(R.id.nav_organize);
         LinearLayout navStats = findViewById(R.id.nav_stats);
         LinearLayout navProfile = findViewById(R.id.nav_profile);
 
-        // 设置当前页面为选中状态
         setSelectedTab(navRecord);
 
-        // 记录页面 - 不需要跳转，只需更新样式
         navRecord.setOnClickListener(v -> setSelectedTab(navRecord));
 
-        // 整理页面
         navOrganize.setOnClickListener(v -> {
             Intent organizeIntent = new Intent(FirstActivity.this, OrganizeActivity.class);
             startActivity(organizeIntent);
         });
 
-        // 统计页面
         navStats.setOnClickListener(v -> {
             Intent statsIntent = new Intent(FirstActivity.this, StatisticsActivity.class);
             startActivity(statsIntent);
         });
 
-        // 个人页面
         navProfile.setOnClickListener(v -> {
             Intent profileIntent = new Intent(FirstActivity.this, MainActivity.class);
             startActivity(profileIntent);
         });
     }
 
-        private void setSelectedTab(LinearLayout selectedTab) {
-            resetTabStyles();
-            selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
+    private void setSelectedTab(LinearLayout selectedTab) {
+        resetTabStyles();
+        selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
 
-            // 更安全的获取子View方式
-            if (selectedTab.getChildCount() > 0) {
-                View firstChild = selectedTab.getChildAt(0);
-                if (firstChild instanceof LinearLayout) {
-                    // 如果是嵌套的LinearLayout
-                    LinearLayout innerLayout = (LinearLayout) firstChild;
-                    if (innerLayout.getChildCount() >= 2) {
-                        TextView iconText = (TextView) innerLayout.getChildAt(0);
-                        TextView labelText = (TextView) innerLayout.getChildAt(1);
+        if (selectedTab.getChildCount() > 0) {
+            View firstChild = selectedTab.getChildAt(0);
+            if (firstChild instanceof LinearLayout) {
+                LinearLayout innerLayout = (LinearLayout) firstChild;
+                if (innerLayout.getChildCount() >= 2) {
+                    TextView iconText = (TextView) innerLayout.getChildAt(0);
+                    TextView labelText = (TextView) innerLayout.getChildAt(1);
 
-                        iconText.setTextColor(Color.parseColor("#2196F3"));
-                        labelText.setTextColor(Color.parseColor("#2196F3"));
-                    }
-                } else {
-                    // 如果是直接包含两个TextView
-                    if (selectedTab.getChildCount() >= 2) {
-                        TextView iconText = (TextView) selectedTab.getChildAt(0);
-                        TextView labelText = (TextView) selectedTab.getChildAt(1);
+                    iconText.setTextColor(Color.parseColor("#2196F3"));
+                    labelText.setTextColor(Color.parseColor("#2196F3"));
+                }
+            } else {
+                if (selectedTab.getChildCount() >= 2) {
+                    TextView iconText = (TextView) selectedTab.getChildAt(0);
+                    TextView labelText = (TextView) selectedTab.getChildAt(1);
 
-                        iconText.setTextColor(Color.parseColor("#2196F3"));
-                        labelText.setTextColor(Color.parseColor("#2196F3"));
-                    }
+                    iconText.setTextColor(Color.parseColor("#2196F3"));
+                    labelText.setTextColor(Color.parseColor("#2196F3"));
                 }
             }
         }
+    }
 
-        private void resetTabStyles() {
-            int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
+    private void resetTabStyles() {
+        int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
 
-            for (int id : navIds) {
-                LinearLayout tab = findViewById(id);
-                if (tab != null) {
-                    tab.setBackgroundColor(Color.TRANSPARENT);
+        for (int id : navIds) {
+            LinearLayout tab = findViewById(id);
+            if (tab != null) {
+                tab.setBackgroundColor(Color.TRANSPARENT);
 
-                    if (tab.getChildCount() > 0) {
-                        View firstChild = tab.getChildAt(0);
-                        if (firstChild instanceof LinearLayout) {
-                            // 嵌套布局的情况
-                            LinearLayout innerLayout = (LinearLayout) firstChild;
-                            if (innerLayout.getChildCount() >= 2) {
-                                TextView iconText = (TextView) innerLayout.getChildAt(0);
-                                TextView labelText = (TextView) innerLayout.getChildAt(1);
+                if (tab.getChildCount() > 0) {
+                    View firstChild = tab.getChildAt(0);
+                    if (firstChild instanceof LinearLayout) {
+                        LinearLayout innerLayout = (LinearLayout) firstChild;
+                        if (innerLayout.getChildCount() >= 2) {
+                            TextView iconText = (TextView) innerLayout.getChildAt(0);
+                            TextView labelText = (TextView) innerLayout.getChildAt(1);
 
-                                if (iconText != null) iconText.setTextColor(Color.BLACK);
-                                if (labelText != null) labelText.setTextColor(Color.BLACK);
-                            }
-                        } else {
-                            // 直接包含的情况
-                            if (tab.getChildCount() >= 2) {
-                                TextView iconText = (TextView) tab.getChildAt(0);
-                                TextView labelText = (TextView) tab.getChildAt(1);
+                            if (iconText != null) iconText.setTextColor(Color.BLACK);
+                            if (labelText != null) labelText.setTextColor(Color.BLACK);
+                        }
+                    } else {
+                        if (tab.getChildCount() >= 2) {
+                            TextView iconText = (TextView) tab.getChildAt(0);
+                            TextView labelText = (TextView) tab.getChildAt(1);
 
-                                if (iconText != null) iconText.setTextColor(Color.BLACK);
-                                if (labelText != null) labelText.setTextColor(Color.BLACK);
-                            }
+                            if (iconText != null) iconText.setTextColor(Color.BLACK);
+                            if (labelText != null) labelText.setTextColor(Color.BLACK);
                         }
                     }
                 }
             }
         }
     }
-
+}
