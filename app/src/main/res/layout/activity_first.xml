@@ -80,6 +80,79 @@
                     android:textColor="#FF5252" />
             </LinearLayout>
 
+            <!-- 录音预览布局 -->
+            <LinearLayout
+                android:id="@+id/voicePreviewLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="语音预览"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- 语音图标 -->
+                    <TextView
+                        android:id="@+id/voicePreviewIcon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:text="🔊"
+                        android:textSize="20sp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_rounded_border"
+                        android:layout_marginEnd="12dp" />
+
+                    <!-- 语音信息 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/voicePreviewDuration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00:00"
+                            android:textSize="14sp"
+                            android:textColor="#333333" />
+
+                        <TextView
+                            android:id="@+id/voicePreviewStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="已录制"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- 删除按钮 -->
+                    <Button
+                        android:id="@+id/removeVoiceButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="删除"
+                        android:textColor="#FF3B30"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:padding="8dp" />
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- 快速操作 -->
             <LinearLayout
                 android:layout_width="match_parent"
