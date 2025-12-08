@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -42,6 +43,11 @@ public class OrganizeActivity extends AppCompatActivity {
     private List<Note> todayNotesList = new ArrayList<>();
     private Gson gson = new Gson();
     private MediaPlayer mediaPlayer;
+    private Button aiProcessBtn;
+    private LinearLayout aiResultSection;
+    private TextView aiResultText;
+    private Button btnSaveResult, btnClearResult;
+    private AIProcessor aiProcessor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +56,88 @@ public class OrganizeActivity extends AppCompatActivity {
 
         initViews();
         setupBottomNavigation();
+        setupAIProcessing();
         loadNotesFromFile();
         updateTodayNotes();
         refreshNotesDisplay();
+    }
+    // 添加初始化方法
+
+
+    // 添加AI处理设置方法
+    private void setupAIProcessing() {
+        aiProcessor = new AIProcessor(this);
+
+        aiProcessBtn.setOnClickListener(v -> {
+            if (todayNotesList.isEmpty()) {
+                Toast.makeText(this, "请先添加一些碎片再使用AI整合", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 显示加载状态
+            aiResultText.setText("🤖 AI正在整合碎片...");
+            aiResultSection.setVisibility(View.VISIBLE);
+            aiProcessBtn.setEnabled(false);
+            aiProcessBtn.setText("处理中...");
+
+            // 使用模拟处理（测试用）
+            aiProcessor.processNotes(todayNotesList, new AIProcessor.AIProcessCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    runOnUiThread(() -> {
+                        aiResultText.setText(result);
+                        aiProcessBtn.setEnabled(true);
+                        aiProcessBtn.setText("🤖 AI整合碎片");
+                    });
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    runOnUiThread(() -> {
+                        aiResultText.setText("❌ " + error);
+                        aiProcessBtn.setEnabled(true);
+                        aiProcessBtn.setText("🤖 AI整合碎片");
+                    });
+                }
+            });
+        });
+
+        // 保存结果按钮
+        btnSaveResult.setOnClickListener(v -> {
+            String result = aiResultText.getText().toString();
+            if (!result.isEmpty() && !result.contains("等待AI处理") && !result.contains("正在整合")) {
+                saveAIResultToDiary(result);
+            } else {
+                Toast.makeText(this, "请先生成有效的结果", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // 清空结果按钮
+        btnClearResult.setOnClickListener(v -> {
+            aiResultSection.setVisibility(View.GONE);
+            aiResultText.setText("等待AI处理...");
+        });
+    }
+
+    // 保存AI结果到日记
+    // 修改 saveAIResultToDiary 方法：
+    private void saveAIResultToDiary(String result) {
+        // 获取日记管理器
+        DiaryManager diaryManager = DiaryManager.getInstance(this);
+
+        // 保存到日记
+        diaryManager.saveAIDiary(result);
+
+        // 显示成功消息
+        String currentDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
+        Toast.makeText(this, "已保存为" + currentDate + "的日记", Toast.LENGTH_SHORT).show();
+        // 清空结果区域
+        aiResultSection.setVisibility(View.GONE);
+        aiResultText.setText("等待AI处理...");
+        // 可选：跳转到日记查看页面
+
+        // Intent intent = new Intent(this, DiaryListActivity.class);
+        // startActivity(intent);
     }
 
     @Override
@@ -78,6 +163,12 @@ public class OrganizeActivity extends AppCompatActivity {
     private void initViews() {
         timelineContainer = findViewById(R.id.timelineContainer);
         emptyStateText = findViewById(R.id.emptyStateText);
+        // AI相关视图
+        aiProcessBtn = findViewById(R.id.ai_process_btn);
+        aiResultSection = findViewById(R.id.ai_result_section);
+        aiResultText = findViewById(R.id.ai_result_text);
+        btnSaveResult = findViewById(R.id.btn_save_result);
+        btnClearResult = findViewById(R.id.btn_clear_result);
     }
 
     private void updateTodayNotes() {
