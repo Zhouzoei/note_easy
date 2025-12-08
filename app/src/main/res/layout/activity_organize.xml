@@ -9,20 +9,36 @@
         android:id="@+id/title_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="碎片整理"
+        android:text="今日碎片"
         android:textSize="20sp"
         android:textStyle="bold"
         android:padding="20dp"
         android:layout_marginBottom="10dp"
         android:layout_alignParentTop="true" />
 
+    <!-- AI处理按钮 -->
+    <Button
+        android:id="@+id/ai_process_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🤖 AI整合碎片"
+        android:textSize="16sp"
+        android:background="@drawable/bg_rounded_primary"
+        android:textColor="#FFFFFF"
+        android:layout_below="@id/title_text"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp" />
+
     <!-- 主要内容区域 -->
     <ScrollView
+        android:id="@+id/main_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="20dp"
-        android:layout_below="@+id/title_text"
-        android:layout_above="@+id/bottom_navigation">
+        android:layout_below="@id/ai_process_btn"
+        android:layout_above="@+id/ai_result_section">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,7 +70,75 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- 底部导航栏 - 固定在屏幕底部 -->
+    <!-- AI结果区域 -->
+    <LinearLayout
+        android:id="@+id/ai_result_section"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:layout_above="@+id/bottom_navigation"
+        android:visibility="gone">
+
+        <!-- 结果标题 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📝 AI整合结果"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:padding="12dp"
+            android:background="#F8F9FA"
+            android:gravity="center" />
+
+        <!-- AI生成结果 -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/ai_result_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="等待AI处理..."
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.2" />
+        </ScrollView>
+
+        <!-- 操作按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btn_save_result"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="保存为日记"
+                android:textSize="14sp"
+                android:layout_marginRight="4dp"
+                android:background="@drawable/bg_rounded_success" />
+
+            <Button
+                android:id="@+id/btn_clear_result"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="清空结果"
+                android:textSize="14sp"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/bg_rounded_secondary" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 底部导航栏 -->
     <include
         android:id="@+id/bottom_navigation"
         layout="@layout/layout_bottom_nav"
