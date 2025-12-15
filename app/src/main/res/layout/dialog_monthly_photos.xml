@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/totalPhotosLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- 标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="本月照片"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 统计信息 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="本月照片"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvTotalPhotosCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="40dp"
+            android:background="#e0e0e0" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="有图日记"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvNotesWithPhotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#2196F3" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 照片预览标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="照片预览"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <!-- 照片预览区域 -->
+    <LinearLayout
+        android:id="@+id/photosPreviewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:orientation="vertical"
+        android:background="#f8f9fa"
+        android:padding="8dp"
+        android:gravity="center">
+
+        <!-- 网格布局容器 -->
+        <LinearLayout
+            android:id="@+id/photosGridContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- 这里通过Java代码动态添加照片 -->
+            <!-- 默认显示无照片提示 -->
+            <TextView
+                android:id="@+id/tvNoPhotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="本月暂无照片"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:gravity="center"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 底部按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="关闭"
+            android:textSize="16sp"
+            android:background="@drawable/bg_rounded_button_primary"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+</LinearLayout>

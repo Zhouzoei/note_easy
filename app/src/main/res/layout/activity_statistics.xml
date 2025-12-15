@@ -58,6 +58,7 @@
 
                     <!-- 月度记录 -->
                     <LinearLayout
+                        android:id="@+id/monthlyRecordsLayout"
                         android:layout_width="0dp"
                         android:layout_height="100dp"
                         android:layout_weight="1"
@@ -88,6 +89,7 @@
 
                     <!-- 照片总数 -->
                     <LinearLayout
+                        android:id="@+id/totalPhotosLayout"
                         android:layout_width="0dp"
                         android:layout_height="100dp"
                         android:layout_weight="1"
@@ -126,6 +128,7 @@
 
                     <!-- 主要心情 -->
                     <LinearLayout
+                        android:id="@+id/primaryMoodLayout"
                         android:layout_width="0dp"
                         android:layout_height="100dp"
                         android:layout_weight="1"
@@ -158,6 +161,7 @@
 
                     <!-- 常用标签 -->
                     <LinearLayout
+                        android:id="@+id/commonTagsLayout"
                         android:layout_width="0dp"
                         android:layout_height="100dp"
                         android:layout_weight="1"

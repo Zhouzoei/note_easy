@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/primaryMoodLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- 标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="本月心情分析"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 主要心情卡片 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_stat_card_orange"
+        android:padding="16dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="主要心情"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- 心情表情 -->
+            <TextView
+                android:id="@+id/tvMoodEmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="😊"
+                android:textSize="36sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="16dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvMoodName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="无记录"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/tvMoodDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="本月暂无心情记录"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:alpha="0.9"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 心情统计进度条 -->
+        <ProgressBar
+            android:id="@+id/progressBarMood"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="12dp"
+            android:progress="0"
+            android:progressTint="#FFFFFF"
+            android:progressBackgroundTint="#FFFFFF"
+            android:background="#FFFFFF"
+            android:alpha="0.7" />
+    </LinearLayout>
+
+    <!-- 心情分布标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="心情分布统计"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 心情分布列表 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#f8f9fa"
+        android:padding="8dp"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:id="@+id/moodDistributionContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 这里通过Java代码动态添加心情分布项 -->
+            <!-- 默认显示无数据提示 -->
+            <TextView
+                android:id="@+id/tvNoMoodData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="暂无心情分布数据"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:gravity="center"
+                android:padding="40dp"
+                android:visibility="visible" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 底部按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="关闭"
+            android:textSize="16sp"
+            android:background="@drawable/bg_rounded_button_primary"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+</LinearLayout>
