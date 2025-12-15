@@ -11,5 +11,11 @@
     <color name="mood_normal">#2196F3</color>
     <color name="mood_good">#4CAF50</color>
     <color name="mood_excited">#FF6B9C</color>
+    <color name="tag_work">#3F51B5</color>
+    <color name="tag_life">#009688</color>
+    <color name="tag_study">#FF5722</color>
+    <color name="tag_entertainment">#9C27B0</color>
+    <color name="tag_health">#4CAF50</color>
+    <color name="tag_other">#795548</color>
 
 </resources>
