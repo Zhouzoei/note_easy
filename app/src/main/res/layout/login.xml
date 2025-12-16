@@ -1,144 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
     android:background="@android:color/white">
 
-    <!-- 应用标题 -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="40dp"
->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="碎片记录"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:padding="3dp" />
-
-    </LinearLayout>
-
-    <!-- 登录标题 -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/black_border">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="用户登录"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:padding="12dp" />
-
-    </LinearLayout>
-
-    <!-- 用户名标签 -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/black_border">
+        android:layout_height="match_parent"
+        android:padding="24dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="用户名"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:padding="8dp"
-            android:background="@android:color/white" />
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <!-- 应用标题 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="30dp">
 
-    <!-- 用户名输入框 -->
-    <EditText
-        android:id="@+id/etUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edittext_gray_background"
-        android:padding="12dp"
-        android:hint="请输入用户名"
-        android:textSize="14sp"
-        android:layout_marginBottom="16dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="碎片记录"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:padding="3dp" />
 
-    <!-- 密码标签 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/black_border">
+            </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="密码"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:padding="8dp"
-            android:background="@android:color/white" />
+            <!-- 登录标题 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="30dp"
+                android:background="@drawable/black_border">
 
-    </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="用户登录"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:padding="12dp" />
 
-    <!-- 密码输入框 -->
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edittext_gray_background"
-        android:padding="12dp"
-        android:hint="请输入密码"
-        android:textSize="14sp"
-        android:inputType="textPassword"
-        android:layout_marginBottom="24dp" />
+            </LinearLayout>
 
-    <!-- 登录按钮 -->
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="登录"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:background="@drawable/button_black_border"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="12dp"
-        android:padding="12dp" />
+            <!-- 用户名输入区域 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
 
-    <!-- 注册按钮 -->
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="注册新账号"
-        android:textSize="16sp"
-        android:background="@drawable/button_black_border"
-        android:textColor="@android:color/black"
-        android:padding="12dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/black_border">
 
-    <!-- 错误信息提示 -->
-    <TextView
-        android:id="@+id/tvError"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#FF0000"
-        android:textSize="14sp"
-        android:gravity="center"
-        android:layout_marginTop="16dp"
-        android:visibility="gone" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="用户名"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@android:color/white" />
 
-</LinearLayout>
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/etUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_gray_background"
+                    android:padding="12dp"
+                    android:hint="请输入用户名"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- 密码输入区域 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="30dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/black_border">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="密码"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@android:color/white" />
+
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_gray_background"
+                    android:padding="12dp"
+                    android:hint="请输入密码"
+                    android:textSize="14sp"
+                    android:inputType="textPassword" />
+
+            </LinearLayout>
+
+            <!-- 登录按钮 -->
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="登录"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:background="@drawable/button_black_border"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="12dp"
+                android:padding="12dp" />
+
+            <!-- 注册按钮 -->
+            <Button
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="注册新账号"
+                android:textSize="16sp"
+                android:background="@drawable/button_black_border"
+                android:textColor="@android:color/black"
+                android:padding="12dp" />
+
+            <!-- 错误信息提示 -->
+            <TextView
+                android:id="@+id/tvError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#FF0000"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
