@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class OrganizeActivity extends AppCompatActivity {
+public class OrganizeActivity extends BaseActivity {
 
     private static final String NOTES_FILE = "notes.json";
 

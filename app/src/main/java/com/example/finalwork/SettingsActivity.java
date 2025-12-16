@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends BaseActivity {
 
     private EditText etNewUsername, etOldPassword, etNewPassword;
     private TextView tvBirthdayDisplay, tvError;
