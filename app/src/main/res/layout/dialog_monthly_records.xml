@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="日记查看"
+            android:text="记录查看"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#333333"
