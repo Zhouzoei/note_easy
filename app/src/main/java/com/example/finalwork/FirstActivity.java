@@ -972,7 +972,7 @@ public class FirstActivity extends AppCompatActivity {
             if (loadedNotes != null) {
                 notesList.clear();
                 notesList.addAll(loadedNotes);
-                Toast.makeText(this, "加载了 " + notesList.size() + " 条笔记", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "加载了 " + notesList.size() + " 条笔记", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             notesList.clear();

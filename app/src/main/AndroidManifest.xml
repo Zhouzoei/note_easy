@@ -77,19 +77,21 @@
             android:name=".StatisticsActivity"
             android:label="笔记统计"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/Theme.FinalWork" />
 
         <!-- 整理页面 -->
         <activity
             android:name=".OrganizeActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.FinalWork"/>
 
         <!-- 设置页面 -->
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.FinalWork"/>
 
         <!-- 语音录制对话框（如果作为Activity使用） -->
         <!-- <activity
