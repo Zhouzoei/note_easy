@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.example.finalwork.UserManager;
 
-public class RegisterActivity extends Activity {
+public class RegisterActivity extends BaseActivity {
 
     private EditText etUsername, etPassword, etConfirmPassword;
     private Button btnRegister, btnBackToLogin;

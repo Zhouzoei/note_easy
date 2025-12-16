@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
 
     private TextView tvUsername, tvBirthday;
     private ImageView ivAvatar;
