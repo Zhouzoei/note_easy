@@ -16,6 +16,39 @@
         android:layout_marginBottom="10dp"
         android:layout_alignParentTop="true" />
 
+    <!-- Tab切换区域 -->
+    <LinearLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/title_text"
+        android:background="#FFFFFF"
+        android:elevation="2dp">
+
+        <Button
+            android:id="@+id/tab_fragments"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="今日碎片"
+            android:textSize="16sp"
+            android:textColor="#2196F3"
+            android:background="@drawable/tab_selected_bg"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/tab_diary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="今日日记"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:background="@drawable/tab_normal_bg"
+            android:padding="12dp" />
+    </LinearLayout>
+
     <!-- AI处理按钮 -->
     <Button
         android:id="@+id/ai_process_btn"
@@ -25,20 +58,21 @@
         android:textSize="16sp"
         android:background="@drawable/bg_rounded_primary"
         android:textColor="#FFFFFF"
-        android:layout_below="@id/title_text"
+        android:layout_below="@id/tab_layout"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp" />
 
-    <!-- 主要内容区域 -->
+    <!-- 今日碎片内容区域 -->
     <ScrollView
-        android:id="@+id/main_scroll"
+        android:id="@+id/fragments_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp"
         android:layout_below="@id/ai_process_btn"
-        android:layout_above="@+id/ai_result_section">
+        android:layout_above="@+id/bottom_navigation"
+        android:padding="20dp"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,86 +104,253 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- AI结果区域 -->
-    <LinearLayout
-        android:id="@+id/ai_result_section"
+    <!-- 今日日记内容区域 -->
+    <ScrollView
+        android:id="@+id/diary_scroll"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:orientation="vertical"
-        android:background="#FFFFFF"
-        android:elevation="8dp"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ai_process_btn"
         android:layout_above="@+id/bottom_navigation"
+        android:padding="20dp"
         android:visibility="gone">
 
-        <!-- 结果标题 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="✨ AI整合结果"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:padding="12dp"
-            android:background="#F8F9FA"
-            android:gravity="center" />
-
-        <!-- AI生成结果内容区域 -->
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:id="@+id/result_content_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- AI生成的文字 -->
-                <TextView
-                    android:id="@+id/ai_result_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="等待AI处理..."
-                    android:textSize="14sp"
-                    android:lineSpacingMultiplier="1.4" />
-
-                <!-- 这里动态添加图片和语音容器 -->
-
-            </LinearLayout>
-        </ScrollView>
-
-        <!-- 操作按钮 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:gravity="center">
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_save_result"
-                android:layout_width="0dp"
+            <!-- 日记标题和状态 -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="保存为日记"
-                android:textSize="14sp"
-                android:layout_marginRight="4dp"
-                android:background="@drawable/bg_rounded_success"
-                android:visibility="gone" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
 
-            <Button
-                android:id="@+id/btn_clear_result"
-                android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/diary_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2024年12月16日"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333" />
+
+                <TextView
+                    android:id="@+id/diary_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="未生成"
+                    android:textSize="12sp"
+                    android:textColor="#999999"
+                    android:background="#F0F0F0"
+                    android:padding="4dp" />
+            </LinearLayout>
+
+            <!-- AI结果区域 -->
+            <LinearLayout
+                android:id="@+id/ai_result_section"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="清空结果"
-                android:textSize="14sp"
-                android:layout_marginLeft="4dp"
-                android:background="@drawable/bg_rounded_secondary"
-                android:visibility="gone" />
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:elevation="2dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <!-- 结果标题 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="✨ AI整合结果"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:padding="12dp"
+                    android:background="#F8F9FA"
+                    android:gravity="center" />
+
+                <!-- AI生成结果内容区域 -->
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="300dp"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/result_content_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- AI生成的文字 -->
+                        <TextView
+                            android:id="@+id/ai_result_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="等待AI处理..."
+                            android:textSize="14sp"
+                            android:lineSpacingMultiplier="1.4" />
+
+                        <!-- 这里动态添加图片和语音容器 -->
+
+                    </LinearLayout>
+                </ScrollView>
+
+                <!-- 操作按钮 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:gravity="center">
+
+                    <Button
+                        android:id="@+id/btn_edit_result"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="编辑"
+                        android:textSize="14sp"
+                        android:layout_marginRight="4dp"
+                        android:background="@drawable/bg_rounded_primary"
+                        android:textColor="#FFFFFF"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/btn_save_result"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="保存为日记"
+                        android:textSize="14sp"
+                        android:layout_marginRight="4dp"
+                        android:background="@drawable/bg_rounded_success"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/btn_clear_result"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="清空结果"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="4dp"
+                        android:background="@drawable/bg_rounded_secondary"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 日记编辑区域 -->
+            <LinearLayout
+                android:id="@+id/diary_edit_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:elevation="2dp"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="编辑日记"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333" />
+
+                    <Button
+                        android:id="@+id/btn_cancel_edit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="取消"
+                        android:textSize="12sp"
+                        android:background="@drawable/bg_rounded_secondary"
+                        android:textColor="#333333"
+                        android:layout_marginRight="8dp" />
+
+                    <Button
+                        android:id="@+id/btn_save_edit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="保存"
+                        android:textSize="12sp"
+                        android:background="@drawable/bg_rounded_success"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/diary_content_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="200dp"
+                    android:gravity="top"
+                    android:hint="在此编辑日记内容..."
+                    android:textSize="14sp"
+                    android:textColor="#333333"
+                    android:textColorHint="#999999"
+                    android:background="@drawable/edittext_gray_background"
+                    android:padding="12dp"
+                    android:lineSpacingMultiplier="1.4" />
+            </LinearLayout>
+
+            <!-- 原始内容展示区域 -->
+            <LinearLayout
+                android:id="@+id/original_content_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:elevation="2dp"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📷 今日图片"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/diary_images_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🎤 今日语音"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/diary_voices_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <!-- 底部导航栏 -->
     <include
