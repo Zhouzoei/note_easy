@@ -4,6 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Set;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class UserManager {
     private static final String PREF_NAME = "user_data";
@@ -14,6 +23,49 @@ public class UserManager {
 
     public UserManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+    public String getUserAvatarPath(String username) {
+        return sharedPreferences.getString(username + "_avatar_path", null);
+    }
+
+    // 新增：设置用户头像路径
+    public void setUserAvatarPath(String username, String avatarPath) {
+        sharedPreferences.edit().putString(username + "_avatar_path", avatarPath).apply();
+    }
+    public boolean saveUserAvatar(Context context, String username, Uri imageUri) {
+        if (imageUri == null) return false;
+
+        try {
+            // 1. 创建应用私有目录下的头像文件
+            File avatarFile = new File(context.getFilesDir(), "avatars");
+            if (!avatarFile.exists()) {
+                avatarFile.mkdirs();
+            }
+            String fileName = "avatar_" + username + ".jpg"; // 以用户名命名，避免冲突
+            File destFile = new File(avatarFile, fileName);
+
+            // 2. 复制文件
+            InputStream inputStream = context.getContentResolver().openInputStream(imageUri);
+            OutputStream outputStream = new FileOutputStream(destFile);
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.flush();
+            outputStream.close();
+            inputStream.close();
+
+            // 3. 保存新路径到SharedPreferences
+            String newPath = destFile.getAbsolutePath();
+            setUserAvatarPath(username, newPath);
+            return true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // 注册用户

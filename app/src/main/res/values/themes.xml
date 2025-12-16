@@ -12,8 +12,9 @@
         <item name="colorOnSecondary">@color/black</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item> <!-- 适配浅色文字 -->
+        <item name="android:statusBarColor">#E0E0E0</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:fitsSystemWindows">true</item><!-- 适配浅色文字 -->
         <item name="android:windowAnimationStyle">@null</item> <!-- 禁用所有窗口动画 -->
         <!-- Customize your theme here. -->
     </style>
