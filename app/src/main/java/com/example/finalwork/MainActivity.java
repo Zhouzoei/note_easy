@@ -217,9 +217,12 @@ public class MainActivity extends BaseActivity {
     private void logout() {
         userManager.logout();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        // 清除任务栈并创建新的任务
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

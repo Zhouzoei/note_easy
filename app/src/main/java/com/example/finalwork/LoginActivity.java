@@ -70,9 +70,12 @@ public class LoginActivity extends BaseActivity {
 
     private void navigateToMain() {
         Intent intent = new Intent(LoginActivity.this, FirstActivity.class);
+        // 清除任务栈并创建新的任务
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
+
 
     private void checkAutoLogin() {
         String currentUser = userManager.getCurrentUser();
