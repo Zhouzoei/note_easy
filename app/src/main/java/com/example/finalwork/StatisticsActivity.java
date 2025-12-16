@@ -47,6 +47,13 @@ public class StatisticsActivity extends BaseActivity {
     private final List<Note> notesList = new ArrayList<>();
     private NoteStatistics statistics;
     private final Gson gson = new Gson();
+    private Calendar currentCalendar;
+    // 在现有的成员变量下面添加
+    private Button btnPreviousMonth, btnNextMonth;
+    private DiaryManager diaryManager;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +63,162 @@ public class StatisticsActivity extends BaseActivity {
         initViews();
         loadNotes();
         setupBottomNavigation();
+        setupMonthNavigation();
         calculateAndDisplayStatistics();
 
         // 设置四个模块的点击事件
         setupClickListeners();
     }
+    private View createDayView(int week, int day, int firstDay, int currentDay, int maxDay, int year, int month) {
+        // 使用布局文件创建日期项
+        View dayView = getLayoutInflater().inflate(R.layout.item_mood_day, null);
+        TextView tvDay = dayView.findViewById(R.id.tvDay);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.weight = 1;
+        params.setMargins(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2));
+        dayView.setLayoutParams(params);
+
+        int dayNumber = week * 7 + day - firstDay + 1;
+
+        if (dayNumber > 0 && dayNumber <= maxDay) {
+            // 设置日期数字
+            tvDay.setText(String.valueOf(dayNumber));
+
+            // 查找这一天的心情
+            String dateStr = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayNumber);
+            String mood = getMoodForDate(dateStr);
+
+            // 设置背景颜色
+            int backgroundColor = getMoodColor(mood);
+            tvDay.setBackgroundColor(backgroundColor);
+            tvDay.setTextColor(Color.BLACK);
+
+            // 设置点击事件
+            final int finalDayNumber = dayNumber;
+            // 在tvDay.setOnClickListener()中替换现有代码
+            tvDay.setOnClickListener(v -> {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Calendar clickCal = Calendar.getInstance();
+                clickCal.set(year, month, finalDayNumber);
+                String clickDate = sdf.format(clickCal.getTime());
+
+                // 1. 检查是否有日记
+                Diary diary = diaryManager.getDiaryByDate(clickDate);
+                if (diary != null) {
+                    showDiaryDetails(diary);
+                    return;
+                }
+
+                // 2. 检查是否有笔记和心情
+                List<Note> dayNotes = getNotesForDate(clickDate);
+                String dayMood = getMoodForDate(clickDate);
+
+                if (!dayNotes.isEmpty() && dayMood != null && !dayMood.isEmpty()) {
+                    // 有笔记和心情，显示心情提示
+                    showMoodToast(clickDate, dayMood, dayNotes.size());
+                } else if (dayMood != null && !dayMood.isEmpty()) {
+                    // 只有心情
+                    showMoodToast(clickDate, dayMood, 0);
+                } else if (!dayNotes.isEmpty()) {
+                    // 只有笔记，无心情
+                    Toast.makeText(this, clickDate + " 有笔记但无心情记录", Toast.LENGTH_SHORT).show();
+                } else {
+                    // 什么都没有
+                    Toast.makeText(this, clickDate + " 无记录", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            return dayView;
+        } else {
+            // 空白日期 - 隐藏TextView
+            tvDay.setVisibility(View.GONE);
+            return dayView;
+        }
+    }
+    private void showMoodToast(String date, String mood, int notesCount) {
+        String message = date + " 心情：" + mood;
+        if (notesCount > 0) {
+            message += "（" + notesCount + "条笔记）";
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+
+
+    private String getMoodForDate(String date) {
+        for (Note note : notesList) {
+            if (note.getDate().equals(date) && note.getMood() != null && !note.getMood().isEmpty()) {
+                return note.getMood();
+            }
+        }
+        return null;
+    }
+
+    private List<Note> getNotesForDate(String date) {
+        List<Note> dayNotes = new ArrayList<>();
+        for (Note note : notesList) {
+            if (note.getDate().equals(date)) {
+                dayNotes.add(note);
+            }
+        }
+        return dayNotes;
+    }
+
+    private int getMoodColor(String mood) {
+        if (mood == null) {
+            return Color.parseColor("#F5F5F5"); // 浅灰色，无数据
+        }
+
+        switch (mood) {
+            case "低落":
+                return Color.parseColor("#FF6B6B"); // 红色
+            case "平静":
+                return Color.parseColor("#4ECDC4"); // 青色
+            case "愉快":
+                return Color.parseColor("#95E77E"); // 绿色
+            case "兴奋":
+                return Color.parseColor("#FFD93D"); // 黄色
+            default:
+                return Color.parseColor("#A8DADC"); // 默认蓝色
+        }
+    }
+
+
+    private void showDayDetails(String date, List<Note> notes) {
+        StringBuilder details = new StringBuilder();
+        details.append(date).append(" 的记录：\n\n");
+
+        for (int i = 0; i < notes.size(); i++) {
+            Note note = notes.get(i);
+            details.append(i + 1).append(". ").append(note.getTime());
+
+            if (note.getMood() != null && !note.getMood().isEmpty()) {
+                details.append(" [").append(note.getMood()).append("]");
+            }
+
+            if (note.getTag() != null && !note.getTag().isEmpty()) {
+                details.append(" #").append(note.getTag());
+            }
+
+            if (note.getContent() != null && !note.getContent().isEmpty()) {
+                details.append("\n").append(note.getContent());
+            }
+
+            details.append("\n\n");
+        }
+
+        // 显示详情对话框
+        new AlertDialog.Builder(this)
+                .setTitle("日记详情")
+                .setMessage(details.toString())
+                .setPositiveButton("确定", null)
+                .show();
+    }
+
+
 
     private void initViews() {
         tvMonthlyRecords = findViewById(R.id.tvMonthlyRecords);
@@ -77,7 +235,27 @@ public class StatisticsActivity extends BaseActivity {
         totalPhotosLayout = findViewById(R.id.totalPhotosLayout);
         primaryMoodLayout = findViewById(R.id.primaryMoodLayout);
         commonTagsLayout = findViewById(R.id.commonTagsLayout);
+        // 在initViews()方法末尾添加
+        btnPreviousMonth = findViewById(R.id.btnPreviousMonth);
+        btnNextMonth = findViewById(R.id.btnNextMonth);
+        // 在initViews()方法中添加
+        currentCalendar = Calendar.getInstance();
+        // 在initViews()方法末尾添加
+        diaryManager = DiaryManager.getInstance(this);
+
     }
+    private void setupMonthNavigation() {
+        btnPreviousMonth.setOnClickListener(v -> {
+            currentCalendar.add(Calendar.MONTH, -1);
+            displayMoodHeatmap();
+        });
+
+        btnNextMonth.setOnClickListener(v -> {
+            currentCalendar.add(Calendar.MONTH, 1);
+            displayMoodHeatmap();
+        });
+    }
+
 
     private void setupClickListeners() {
         // 1. 月度记录 - 点击整个蓝色卡片
@@ -487,6 +665,52 @@ public class StatisticsActivity extends BaseActivity {
         itemParams.setMargins(0, 0, 0, dpToPx(8));
         container.addView(noteItem, itemParams);
     }
+    private void showDiaryDetails(Diary diary) {
+        if (diary == null) {
+            Toast.makeText(this, "日记数据异常", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // 创建简单对话框显示日记
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_simple_diary, null);
+
+            TextView tvTitle = dialogView.findViewById(R.id.tvTitle);
+            TextView tvDate = dialogView.findViewById(R.id.tvDate);
+            TextView tvContent = dialogView.findViewById(R.id.tvContent);
+            TextView tvStats = dialogView.findViewById(R.id.tvStats);
+            Button btnClose = dialogView.findViewById(R.id.btnClose);
+
+            // 安全地设置数据
+            tvTitle.setText(diary.getTitle() != null ? diary.getTitle() : "无标题");
+            tvDate.setText(diary.getDisplayDate() != null ? diary.getDisplayDate() : "未知日期");
+            tvContent.setText(diary.getContent() != null ? diary.getContent() : "无内容");
+
+            // 安全地获取统计信息
+            String stats = "无统计信息";
+            try {
+                String diaryStats = diary.getStats();
+                if (diaryStats != null && !diaryStats.isEmpty()) {
+                    stats = diaryStats;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                stats = "统计信息获取失败";
+            }
+            tvStats.setText(stats);
+
+            AlertDialog dialog = builder.setView(dialogView).create();
+            btnClose.setOnClickListener(v -> dialog.dismiss());
+            dialog.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "显示日记时出错", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     // 根据心情文字获取颜色
     private int getMoodColorByText(String mood) {
@@ -1138,39 +1362,48 @@ public class StatisticsActivity extends BaseActivity {
     }
 
     private void displayMoodHeatmap() {
+        // 更新标题
+        SimpleDateFormat titleFormat = new SimpleDateFormat("yyyy年MM月", Locale.getDefault());
+        tvHeatmapTitle.setText(titleFormat.format(currentCalendar.getTime()));
+
+        // 清空现有内容
         moodHeatmapContainer.removeAllViews();
 
-        List<NoteStatistics.MoodDay> moodDays = statistics.getMoodHeatmap().getDays();
-        if (moodDays.isEmpty()) return;
+        // 获取当前月份的日历信息
+        int year = currentCalendar.get(Calendar.YEAR);
+        int month = currentCalendar.get(Calendar.MONTH);
+        int maxDay = currentCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        // 获取该月的第一天是星期几（Calendar中周日=1, 周一=2, ..., 周六=7）
-        Calendar cal = Calendar.getInstance();
-        cal.set(statistics.getMoodHeatmap().getYear(), statistics.getMoodHeatmap().getMonth() - 1, 1);
-        int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        // 设置到月份第一天
+        Calendar tempCal = Calendar.getInstance();
+        tempCal.set(year, month, 1);
+        int firstDay = tempCal.get(Calendar.DAY_OF_WEEK) - 1; // 0=周日, 1=周一...
 
-        // 创建心情日历行
-        LinearLayout currentRow = createNewRow();
-        moodHeatmapContainer.addView(currentRow);
+        // 创建日历网格
+        int currentDay = 1;
+        int totalWeeks = (maxDay + firstDay + 6) / 7; // 计算需要多少行
 
-        // 添加空白日期（在第一天之前）
-        for (int i = 1; i < firstDayOfWeek; i++) {
-            addEmptyDay(currentRow);
-        }
+        for (int week = 0; week < totalWeeks; week++) {
+            LinearLayout weekRow = new LinearLayout(this);
+            weekRow.setOrientation(LinearLayout.HORIZONTAL);
+            weekRow.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            ));
 
-        // 添加实际日期 - 确保每个日期都有框
-        int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        for (int day = 1; day <= daysInMonth; day++) {
-            // 如果当前行已满（7个元素），创建新行
-            if (currentRow.getChildCount() >= 7) {
-                currentRow = createNewRow();
-                moodHeatmapContainer.addView(currentRow);
+            for (int day = 0; day < 7; day++) {
+                View dayView = createDayView(week, day, firstDay, currentDay, maxDay, year, month);
+                weekRow.addView(dayView);
+
+                if (currentDay <= maxDay && (week * 7 + day) >= firstDay) {
+                    currentDay++;
+                }
             }
 
-            // 查找这一天的心情记录
-            NoteStatistics.MoodDay moodDayForDate = findMoodDayForDate(moodDays, day);
-            addMoodDay(currentRow, moodDayForDate, day);
+            moodHeatmapContainer.addView(weekRow);
         }
     }
+
 
     private NoteStatistics.MoodDay findMoodDayForDate(List<NoteStatistics.MoodDay> moodDays, int day) {
         for (NoteStatistics.MoodDay moodDay : moodDays) {
