@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- 标题区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tvDiaryTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="日记标题"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+        <TextView
+            android:id="@+id/tvDiaryDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2023年11月15日"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+
+    </LinearLayout>
+
+    <!-- 内容区域 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tvDiaryContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="日记内容..."
+            android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="#333333" />
+
+    </ScrollView>
+
+    <!-- 统计信息 -->
+    <TextView
+        android:id="@+id/tvDiaryStats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="统计信息"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 图片区域 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="图片"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:id="@+id/tvImagesLabel" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        android:id="@+id/imagesScrollView">
+
+        <LinearLayout
+            android:id="@+id/imagesContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
+
+    </HorizontalScrollView>
+
+    <!-- 语音区域 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="语音"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        android:id="@+id/tvVoicesLabel" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        android:id="@+id/voicesScrollView">
+
+        <LinearLayout
+            android:id="@+id/voicesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+    <!-- 关闭按钮 -->
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="关闭"
+        android:background="@drawable/bg_rounded_button_primary"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

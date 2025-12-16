@@ -852,14 +852,17 @@ public class OrganizeActivity extends BaseActivity {
             mediaPlayer.setDataSource(voicePath);
             mediaPlayer.prepare();
             mediaPlayer.start();
+            Toast.makeText(this, "正在播放语音", Toast.LENGTH_SHORT).show();
 
             mediaPlayer.setOnCompletionListener(mp -> {
                 mp.release();
                 mediaPlayer = null;
+                Toast.makeText(OrganizeActivity.this, "播放完成", Toast.LENGTH_SHORT).show();
             });
 
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT).show();
         }
     }
 

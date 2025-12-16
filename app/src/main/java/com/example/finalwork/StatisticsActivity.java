@@ -6,24 +6,27 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +54,8 @@ public class StatisticsActivity extends BaseActivity {
     // 在现有的成员变量下面添加
     private Button btnPreviousMonth, btnNextMonth;
     private DiaryManager diaryManager;
+    private MediaPlayer mediaPlayer;
+
 
 
 
@@ -672,18 +677,25 @@ public class StatisticsActivity extends BaseActivity {
         }
 
         try {
-            // 创建简单对话框显示日记
+            // 创建详细对话框显示日记
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-            View dialogView = getLayoutInflater().inflate(R.layout.dialog_simple_diary, null);
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_detailed_diary, null);
 
-            TextView tvTitle = dialogView.findViewById(R.id.tvTitle);
-            TextView tvDate = dialogView.findViewById(R.id.tvDate);
-            TextView tvContent = dialogView.findViewById(R.id.tvContent);
-            TextView tvStats = dialogView.findViewById(R.id.tvStats);
+            // 获取控件
+            TextView tvTitle = dialogView.findViewById(R.id.tvDiaryTitle);
+            TextView tvDate = dialogView.findViewById(R.id.tvDiaryDate);
+            TextView tvContent = dialogView.findViewById(R.id.tvDiaryContent);
+            TextView tvStats = dialogView.findViewById(R.id.tvDiaryStats);
+            TextView tvImagesLabel = dialogView.findViewById(R.id.tvImagesLabel);
+            TextView tvVoicesLabel = dialogView.findViewById(R.id.tvVoicesLabel);
+            HorizontalScrollView imagesScrollView = dialogView.findViewById(R.id.imagesScrollView);
+            ScrollView voicesScrollView = dialogView.findViewById(R.id.voicesScrollView);
+            LinearLayout imagesContainer = dialogView.findViewById(R.id.imagesContainer);
+            LinearLayout voicesContainer = dialogView.findViewById(R.id.voicesContainer);
             Button btnClose = dialogView.findViewById(R.id.btnClose);
 
-            // 安全地设置数据
+            // 设置基本信息
             tvTitle.setText(diary.getTitle() != null ? diary.getTitle() : "无标题");
             tvDate.setText(diary.getDisplayDate() != null ? diary.getDisplayDate() : "未知日期");
             tvContent.setText(diary.getContent() != null ? diary.getContent() : "无内容");
@@ -701,6 +713,32 @@ public class StatisticsActivity extends BaseActivity {
             }
             tvStats.setText(stats);
 
+            // 显示图片
+            if (diary.getImagePaths() != null && !diary.getImagePaths().isEmpty()) {
+                tvImagesLabel.setVisibility(View.VISIBLE);
+                imagesScrollView.setVisibility(View.VISIBLE);
+
+                for (String imagePath : diary.getImagePaths()) {
+                    addImageToDialog(imagesContainer, imagePath);
+                }
+            } else {
+                tvImagesLabel.setVisibility(View.GONE);
+                imagesScrollView.setVisibility(View.GONE);
+            }
+
+            // 显示语音
+            if (diary.getVoicePaths() != null && !diary.getVoicePaths().isEmpty()) {
+                tvVoicesLabel.setVisibility(View.VISIBLE);
+                voicesScrollView.setVisibility(View.VISIBLE);
+
+                for (String voicePath : diary.getVoicePaths()) {
+                    addVoiceToDialog(voicesContainer, voicePath);
+                }
+            } else {
+                tvVoicesLabel.setVisibility(View.GONE);
+                voicesScrollView.setVisibility(View.GONE);
+            }
+
             AlertDialog dialog = builder.setView(dialogView).create();
             btnClose.setOnClickListener(v -> dialog.dismiss());
             dialog.show();
@@ -710,6 +748,142 @@ public class StatisticsActivity extends BaseActivity {
             Toast.makeText(this, "显示日记时出错", Toast.LENGTH_SHORT).show();
         }
     }
+    private void addImageToDialog(LinearLayout container, String imagePath) {
+        ImageView imageView = new ImageView(this);
+        int size = dpToPx(100);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+        params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
+        imageView.setLayoutParams(params);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_rounded_border);
+
+        // 加载图片
+        try {
+            File file = new File(imagePath);
+            if (file.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap);
+
+                    // 添加点击事件查看大图
+                    imageView.setOnClickListener(v -> showLargeImage(imagePath));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        container.addView(imageView);
+    }
+    private void addVoiceToDialog(LinearLayout container, String voicePath) {
+        LinearLayout voiceItem = new LinearLayout(this);
+        voiceItem.setOrientation(LinearLayout.HORIZONTAL);
+        voiceItem.setBackgroundResource(R.drawable.bg_voice_border);
+        voiceItem.setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
+        voiceItem.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, dpToPx(4), 0, dpToPx(4));
+        voiceItem.setLayoutParams(params);
+
+        TextView voiceIcon = new TextView(this);
+        voiceIcon.setText("🔊");
+        voiceIcon.setTextSize(16);
+        voiceIcon.setPadding(0, 0, dpToPx(8), 0);
+        voiceItem.addView(voiceIcon);
+
+        TextView voiceText = new TextView(this);
+        voiceText.setText("语音记录");
+        voiceText.setTextSize(14);
+        voiceText.setTextColor(Color.parseColor("#666666"));
+        voiceItem.addView(voiceText);
+
+        TextView playButton = new TextView(this);
+        playButton.setText(" ▶ 播放");
+        playButton.setTextSize(12);
+        playButton.setTextColor(Color.parseColor("#2196F3"));
+        playButton.setPadding(dpToPx(12), 0, 0, 0);
+
+        LinearLayout.LayoutParams playParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        playParams.gravity = Gravity.END;
+        playParams.weight = 1;
+        playButton.setLayoutParams(playParams);
+
+        // 添加播放事件
+        final String finalVoicePath = voicePath;
+        playButton.setOnClickListener(v -> playVoice(finalVoicePath));
+        voiceItem.addView(playButton);
+
+        container.addView(voiceItem);
+    }
+    private void showLargeImage(String imagePath) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        ImageView imageView = new ImageView(this);
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        imageView.setAdjustViewBounds(true);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        // 加载大图
+        try {
+            File file = new File(imagePath);
+            if (file.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        AlertDialog dialog = builder.setView(imageView).create();
+        dialog.show();
+
+        // 点击图片关闭对话框
+        imageView.setOnClickListener(v -> dialog.dismiss());
+    }
+    private void playVoice(String voicePath) {
+        if (voicePath == null || voicePath.isEmpty()) return;
+
+        try {
+            // 停止当前播放
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+
+            // 创建新的MediaPlayer
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(voicePath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+
+            Toast.makeText(this, "正在播放语音", Toast.LENGTH_SHORT).show();
+
+            // 播放完成监听
+            mediaPlayer.setOnCompletionListener(mp -> {
+                mp.release();
+                mediaPlayer = null;
+                Toast.makeText(this, "播放完成", Toast.LENGTH_SHORT).show();
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 
     // 根据心情文字获取颜色
