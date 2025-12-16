@@ -12,10 +12,10 @@ public class Diary {
     private String content;
     private String date; // 格式: yyyy-MM-dd
     private long timestamp;
-    private static List<String> imagePaths; // 引用的图片路径
-    private static List<String> voicePaths; // 引用的语音路径
-    private int moodCount; // 情绪统计
-    private int wordCount; // 字数统计
+    private List<String> imagePaths; // 修复：移除static
+    private List<String> voicePaths; // 修复：移除static
+    private int moodCount;
+    private int wordCount;
 
     public Diary(String id, String title, String content, String date) {
         this.id = id;
@@ -23,13 +23,13 @@ public class Diary {
         this.content = content;
         this.date = date;
         this.timestamp = System.currentTimeMillis();
-        this.imagePaths = new ArrayList<>();
-        this.voicePaths = new ArrayList<>();
+        this.imagePaths = new ArrayList<>(); // 每个日记实例都有自己的列表
+        this.voicePaths = new ArrayList<>();  // 每个日记实例都有自己的列表
         this.wordCount = content.length();
     }
 
-    // 从AI结果创建日记
-    public static Diary fromAIResult(String aiContent) {
+    // 修复：fromAIResult方法需要接收图片和语音路径
+    public static Diary fromAIResult(String aiContent, List<String> imagePaths, List<String> voicePaths) {
         String diaryId = "diary_" + System.currentTimeMillis();
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String title = "日记 - " + date;
@@ -52,15 +52,13 @@ public class Diary {
     public int getWordCount() { return wordCount; }
 
     public void setTitle(String title) { this.title = title; }
+
     public void setImagePaths(List<String> imagePaths) {
-        if (imagePaths != null) {
-            this.imagePaths = imagePaths;
-        }
+        this.imagePaths = imagePaths != null ? new ArrayList<>(imagePaths) : new ArrayList<>();
     }
+
     public void setVoicePaths(List<String> voicePaths) {
-        if (voicePaths != null) {
-            this.voicePaths = voicePaths;
-        }
+        this.voicePaths = voicePaths != null ? new ArrayList<>(voicePaths) : new ArrayList<>();
     }
 
     // 添加图片路径

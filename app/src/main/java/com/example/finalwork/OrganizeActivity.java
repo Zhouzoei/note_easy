@@ -9,11 +9,12 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,37 +32,121 @@ import java.util.List;
 import java.util.Locale;
 
 public class OrganizeActivity extends BaseActivity {
+    private static final String DIARY_CACHE_FILE = "today_diary_cache.json";
+    private static final String DIARY_DATE_KEY = "diary_date";
+
 
     private static final String NOTES_FILE = "notes.json";
 
+    // Tab相关
+    private Button tabFragments, tabDiary;
+    private ScrollView fragmentsScroll, diaryScroll;
+
+    // 碎片相关
     private LinearLayout timelineContainer;
     private TextView emptyStateText;
     private List<Note> notesList = new ArrayList<>();
     private List<Note> todayNotesList = new ArrayList<>();
-    private Gson gson = new Gson();
-    private MediaPlayer mediaPlayer;
 
-    // AI相关视图
+    // AI相关（保持原有）
     private Button aiProcessBtn;
     private LinearLayout aiResultSection;
     private TextView aiResultText;
-    private Button btnSaveResult, btnClearResult;
+    private Button btnSaveResult, btnClearResult, btnEditResult;
     private AIProcessor aiProcessor;
     private LinearLayout aiImagesContainer;
     private LinearLayout aiVoicesContainer;
 
+    // 日记编辑相关
+    private TextView diaryDate, diaryStatus;
+    private LinearLayout diaryEditSection;
+    private EditText diaryContentEdit;
+    private Button btnCancelEdit, btnSaveEdit;
+    private LinearLayout originalContentSection;
+    private LinearLayout diaryImagesContainer, diaryVoicesContainer;
+
+    private Gson gson = new Gson();
+    private MediaPlayer mediaPlayer;
+
+    // 当前日记状态
+    private String currentDiaryContent = "";
+    private List<String> currentImagePaths = new ArrayList<>();
+    private List<String> currentVoicePaths = new ArrayList<>();
+
+    private DiaryManager diaryManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organize);
 
         initViews();
-        setupBottomNavigation();
+        setupTabSwitching();
         setupAIProcessing();
+        setupDiaryActions();
+        setupBottomNavigation();
+
         loadNotesFromFile();
         updateTodayNotes();
         refreshNotesDisplay();
+        updateDiaryDate();
+
+        // 加载今日日记缓存
+        loadTodayDiaryCache();
     }
+    private void saveTodayDiaryCache() {
+        diaryManager.saveTodayDiary(currentDiaryContent, currentImagePaths, currentVoicePaths);
+    }
+
+    private void loadTodayDiaryCache() {
+        DiaryManager.TodayDiaryCache cache = diaryManager.loadTodayDiary();
+        if (cache != null) {
+            // 恢复日记内容
+            currentDiaryContent = cache.getContent();
+            currentImagePaths = cache.getImagePaths();
+            currentVoicePaths = cache.getVoicePaths();
+
+            // 显示保存的内容
+            displaySavedDiary();
+        }
+    }
+    /**
+     * 显示已保存的日记内容
+     */
+    private void displaySavedDiary() {
+        if (currentDiaryContent.isEmpty()) {
+            return;
+        }
+
+        // 显示AI结果区域
+        aiResultSection.setVisibility(View.VISIBLE);
+
+        // 显示保存的文字内容
+        String currentDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
+        String formattedText = "📅 " + currentDate + "\n\n" + currentDiaryContent;
+        aiResultText.setText(formattedText);
+
+        // 显示图片
+        if (currentImagePaths != null && !currentImagePaths.isEmpty()) {
+            displayOriginalImages(currentImagePaths);
+        }
+
+        // 显示语音
+        if (currentVoicePaths != null && !currentVoicePaths.isEmpty()) {
+            displayOriginalVoices(currentVoicePaths);
+        }
+
+        // 显示操作按钮
+        btnEditResult.setVisibility(View.VISIBLE);
+        btnSaveResult.setVisibility(View.VISIBLE);
+        btnClearResult.setVisibility(View.VISIBLE);
+
+        // 更新状态
+        diaryStatus.setText("已保存");
+        diaryStatus.setBackgroundColor(Color.parseColor("#E3F2FD"));
+        diaryStatus.setTextColor(Color.parseColor("#2196F3"));
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -83,17 +168,37 @@ public class OrganizeActivity extends BaseActivity {
     }
 
     private void initViews() {
+        // Tab相关
+        tabFragments = findViewById(R.id.tab_fragments);
+        tabDiary = findViewById(R.id.tab_diary);
+        fragmentsScroll = findViewById(R.id.fragments_scroll);
+        diaryScroll = findViewById(R.id.diary_scroll);
+
+        // 碎片相关
         timelineContainer = findViewById(R.id.timelineContainer);
         emptyStateText = findViewById(R.id.emptyStateText);
 
-        // AI相关视图
+        // AI相关（保持原有）
         aiProcessBtn = findViewById(R.id.ai_process_btn);
         aiResultSection = findViewById(R.id.ai_result_section);
         aiResultText = findViewById(R.id.ai_result_text);
         btnSaveResult = findViewById(R.id.btn_save_result);
         btnClearResult = findViewById(R.id.btn_clear_result);
+        btnEditResult = findViewById(R.id.btn_edit_result);
 
-        // 动态添加图片和语音容器
+        // 日记编辑相关
+        diaryDate = findViewById(R.id.diary_date);
+        diaryStatus = findViewById(R.id.diary_status);
+        diaryEditSection = findViewById(R.id.diary_edit_section);
+        diaryContentEdit = findViewById(R.id.diary_content_edit);
+        btnCancelEdit = findViewById(R.id.btn_cancel_edit);
+        btnSaveEdit = findViewById(R.id.btn_save_edit);
+        originalContentSection = findViewById(R.id.original_content_section);
+        diaryImagesContainer = findViewById(R.id.diary_images_container);
+        diaryVoicesContainer = findViewById(R.id.diary_voices_container);
+        diaryManager = DiaryManager.getInstance(this);
+
+        // 动态添加图片和语音容器（保持原有）
         aiImagesContainer = new LinearLayout(this);
         aiImagesContainer.setOrientation(LinearLayout.VERTICAL);
         aiImagesContainer.setVisibility(View.GONE);
@@ -108,11 +213,41 @@ public class OrganizeActivity extends BaseActivity {
             resultLayout.addView(aiImagesContainer);
             resultLayout.addView(aiVoicesContainer);
         }
+
+        aiProcessor = new AIProcessor(this);
+    }
+
+    private void setupTabSwitching() {
+        tabFragments.setOnClickListener(v -> switchToFragmentsTab());
+        tabDiary.setOnClickListener(v -> switchToDiaryTab());
+    }
+
+    private void switchToFragmentsTab() {
+        // 更新Tab样式
+        tabFragments.setTextColor(Color.parseColor("#2196F3"));
+        tabFragments.setBackgroundResource(R.drawable.tab_selected_bg);
+        tabDiary.setTextColor(Color.parseColor("#666666"));
+        tabDiary.setBackgroundResource(R.drawable.tab_normal_bg);
+
+        // 切换内容
+        fragmentsScroll.setVisibility(View.VISIBLE);
+        diaryScroll.setVisibility(View.GONE);
+    }
+
+    private void switchToDiaryTab() {
+        // 更新Tab样式
+        tabDiary.setTextColor(Color.parseColor("#2196F3"));
+        tabDiary.setBackgroundResource(R.drawable.tab_selected_bg);
+        tabFragments.setTextColor(Color.parseColor("#666666"));
+        tabFragments.setBackgroundResource(R.drawable.tab_normal_bg);
+
+        // 切换内容
+        fragmentsScroll.setVisibility(View.GONE);
+        diaryScroll.setVisibility(View.VISIBLE);
     }
 
     private void setupAIProcessing() {
-        aiProcessor = new AIProcessor(this);
-
+        // 保持原有的AI处理逻辑
         aiProcessBtn.setOnClickListener(v -> {
             if (todayNotesList.isEmpty()) {
                 Toast.makeText(this, "请先添加一些碎片再使用AI整合", Toast.LENGTH_SHORT).show();
@@ -136,25 +271,39 @@ public class OrganizeActivity extends BaseActivity {
                 @Override
                 public void onSuccess(String aiText, List<String> imagePaths, List<String> voicePaths) {
                     runOnUiThread(() -> {
-                        // 1. 显示AI生成的文字
+                        // 1. 显示AI生成的文字（保持原有格式）
                         displayAIText(aiText);
 
-                        // 2. 显示原图片
+                        // 2. 显示原图片（保持原有）
                         displayOriginalImages(imagePaths);
 
-                        // 3. 显示原语音
+                        // 3. 显示原语音（保持原有）
                         displayOriginalVoices(voicePaths);
 
                         // 4. 恢复按钮状态
                         aiProcessBtn.setEnabled(true);
                         aiProcessBtn.setText("🤖 AI整合碎片");
 
-                        // 5. 显示保存按钮
+                        // 5. 显示操作按钮
+                        btnEditResult.setVisibility(View.VISIBLE);
                         btnSaveResult.setVisibility(View.VISIBLE);
                         btnClearResult.setVisibility(View.VISIBLE);
 
+                        // 6. 保存当前结果
+                        currentDiaryContent = aiText;
+                        currentImagePaths = imagePaths;
+                        currentVoicePaths = voicePaths;
+
+                        // 7. 更新状态
+                        diaryStatus.setText("已生成");
+                        diaryStatus.setBackgroundColor(Color.parseColor("#E8F5E8"));
+                        diaryStatus.setTextColor(Color.parseColor("#4CAF50"));
+
+                        // 8. 自动切换到日记Tab
+                        switchToDiaryTab();
+
                         Toast.makeText(OrganizeActivity.this,
-                                "AI整合完成！已生成文字和附加原始内容",
+                                "AI整合完成！已切换到日记页面进行编辑",
                                 Toast.LENGTH_LONG).show();
                     });
                 }
@@ -177,6 +326,11 @@ public class OrganizeActivity extends BaseActivity {
             });
         });
 
+        // 编辑结果按钮
+        btnEditResult.setOnClickListener(v -> {
+            enterEditMode();
+        });
+
         // 保存结果按钮
         btnSaveResult.setOnClickListener(v -> {
             saveCompleteResult();
@@ -188,26 +342,29 @@ public class OrganizeActivity extends BaseActivity {
         });
     }
 
-    /**
-     * 显示AI生成的文字
-     */
+    private void setupDiaryActions() {
+        btnCancelEdit.setOnClickListener(v -> exitEditMode());
+        btnSaveEdit.setOnClickListener(v -> saveEditedDiary());
+    }
+
+    private void updateDiaryDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault());
+        diaryDate.setText(sdf.format(new Date()));
+    }
+
+    // 保持原有的displayAIText方法
     private void displayAIText(String aiText) {
-        // 添加日期标题
         String currentDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
         String formattedText = "📅 " + currentDate + "\n\n" + aiText;
-
         aiResultText.setText(formattedText);
     }
 
-    /**
-     * 显示原始图片
-     */
+    // 保持原有的displayOriginalImages方法
     private void displayOriginalImages(List<String> imagePaths) {
         if (imagePaths == null || imagePaths.isEmpty()) {
             return;
         }
 
-        // 添加标题
         TextView imagesTitle = new TextView(this);
         imagesTitle.setText("\n📷 今日图片 (" + imagePaths.size() + "张)");
         imagesTitle.setTextSize(16);
@@ -216,12 +373,11 @@ public class OrganizeActivity extends BaseActivity {
         imagesTitle.setPadding(0, dpToPx(16), 0, dpToPx(8));
         aiImagesContainer.addView(imagesTitle);
 
-        // 显示图片
         LinearLayout imagesRow = new LinearLayout(this);
         imagesRow.setOrientation(LinearLayout.HORIZONTAL);
         imagesRow.setPadding(0, 0, 0, dpToPx(16));
 
-        int maxImages = Math.min(imagePaths.size(), 3); // 最多显示3张
+        int maxImages = Math.min(imagePaths.size(), 3);
         for (int i = 0; i < maxImages; i++) {
             String imagePath = imagePaths.get(i);
             ImageView imageView = createThumbnailImageView(imagePath);
@@ -237,26 +393,179 @@ public class OrganizeActivity extends BaseActivity {
 
         aiImagesContainer.addView(imagesRow);
         aiImagesContainer.setVisibility(View.VISIBLE);
+
+        // 同时在日记Tab中显示
+       // displayDiaryImages(imagePaths);
     }
 
-    /**
-     * 创建缩略图ImageView
-     */
+    // 保持原有的displayOriginalVoices方法
+    private void displayOriginalVoices(List<String> voicePaths) {
+        if (voicePaths == null || voicePaths.isEmpty()) {
+            return;
+        }
+
+        TextView voicesTitle = new TextView(this);
+        voicesTitle.setText("\n🎤 今日语音 (" + voicePaths.size() + "条)");
+        voicesTitle.setTextSize(16);
+        voicesTitle.setTypeface(voicesTitle.getTypeface(), android.graphics.Typeface.BOLD);
+        voicesTitle.setTextColor(Color.parseColor("#333333"));
+        voicesTitle.setPadding(0, dpToPx(8), 0, dpToPx(8));
+        aiVoicesContainer.addView(voicesTitle);
+
+        for (String voicePath : voicePaths) {
+            LinearLayout voiceItem = createVoiceItem(voicePath);
+            aiVoicesContainer.addView(voiceItem);
+        }
+
+        aiVoicesContainer.setVisibility(View.VISIBLE);
+
+        // 同时在日记Tab中显示
+        //displayDiaryVoices(voicePaths);
+    }
+
+
+
+    // 进入编辑模式
+    private void enterEditMode() {
+        // 提取纯文本内容（移除日期标题）
+        String content = extractContentFromAIText(aiResultText.getText().toString());
+        diaryContentEdit.setText(content);
+
+        aiResultSection.setVisibility(View.GONE);
+        diaryEditSection.setVisibility(View.VISIBLE);
+    }
+
+    // 退出编辑模式
+    private void exitEditMode() {
+        diaryEditSection.setVisibility(View.GONE);
+        aiResultSection.setVisibility(View.VISIBLE);
+
+        // 确保显示最新的内容
+        if (!currentDiaryContent.isEmpty()) {
+            String displayDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
+            String formattedText = "📅 " + displayDate + "\n\n" + currentDiaryContent;
+            aiResultText.setText(formattedText);
+        }
+    }
+
+
+    // 保存编辑后的日记
+    private void saveEditedDiary() {
+        String content = diaryContentEdit.getText().toString().trim();
+
+        if (content.isEmpty()) {
+            Toast.makeText(this, "日记内容不能为空", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 更新当前内容
+        currentDiaryContent = content;
+
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String diaryId = "diary_" + System.currentTimeMillis();
+        String title = "日记 - " + currentDate;
+
+        // 创建并保存日记
+        Diary diary = new Diary(diaryId, title, content, currentDate);
+        diary.setImagePaths(currentImagePaths);
+        diary.setVoicePaths(currentVoicePaths);
+        diaryManager.addDiary(diary);
+
+        // 保存到今日缓存
+        saveTodayDiaryCache();
+
+        // 更新AI结果区域的显示内容
+        String displayDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
+        String formattedText = "📅 " + displayDate + "\n\n" + content;
+        aiResultText.setText(formattedText);
+
+        Toast.makeText(this, "✅ 编辑后的日记已保存", Toast.LENGTH_SHORT).show();
+
+        // 更新状态
+        diaryStatus.setText("已保存");
+        diaryStatus.setBackgroundColor(Color.parseColor("#E3F2FD"));
+        diaryStatus.setTextColor(Color.parseColor("#2196F3"));
+
+        // 退出编辑模式
+        exitEditMode();
+    }
+
+
+    // 保持原有的saveCompleteResult方法
+    private void saveCompleteResult() {
+        String aiText = aiResultText.getText().toString();
+
+        if (aiText == null || aiText.isEmpty() || aiText.contains("正在分析") || aiText.contains("AI整合失败")) {
+            Toast.makeText(this, "请先生成有效的AI结果", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String content = extractContentFromAIText(aiText);
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        // 使用DiaryManager保存AI日记
+        diaryManager.saveAIDiary(content, currentImagePaths, currentVoicePaths);
+
+        // 保存到今日缓存
+        currentDiaryContent = content;
+        saveTodayDiaryCache();
+
+        String displayDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
+        Toast.makeText(this, "✅ 已保存为" + displayDate + "的日记", Toast.LENGTH_LONG).show();
+
+        diaryStatus.setText("已保存");
+        diaryStatus.setBackgroundColor(Color.parseColor("#E3F2FD"));
+        diaryStatus.setTextColor(Color.parseColor("#2196F3"));
+    }
+
+    // 保持原有的extractContentFromAIText方法
+    private String extractContentFromAIText(String aiText) {
+        String[] lines = aiText.split("\n");
+        StringBuilder content = new StringBuilder();
+
+        for (String line : lines) {
+            if (!line.startsWith("📅") && !line.trim().isEmpty()) {
+                content.append(line).append("\n");
+            }
+        }
+
+        return content.toString().trim();
+    }
+
+    // 保持原有的clearAIResult方法
+    private void clearAIResult() {
+        aiResultSection.setVisibility(View.GONE);
+        aiResultText.setText("等待AI处理...");
+        aiImagesContainer.removeAllViews();
+        aiVoicesContainer.removeAllViews();
+        aiImagesContainer.setVisibility(View.GONE);
+        aiVoicesContainer.setVisibility(View.GONE);
+
+        diaryEditSection.setVisibility(View.GONE);
+        originalContentSection.setVisibility(View.GONE);
+
+        currentDiaryContent = "";
+        currentImagePaths.clear();
+        currentVoicePaths.clear();
+
+        diaryStatus.setText("未生成");
+        diaryStatus.setBackgroundColor(Color.parseColor("#F0F0F0"));
+        diaryStatus.setTextColor(Color.parseColor("#999999"));
+    }
+
+    // 保持原有的其他方法...
     private ImageView createThumbnailImageView(String imagePath) {
         ImageView imageView = new ImageView(this);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setBackgroundResource(R.drawable.bg_rounded_border);
 
-        // 加载图片
         Bitmap bitmap = loadImageFromStorage(imagePath);
         if (bitmap != null) {
-            // 创建缩略图
             int thumbnailSize = dpToPx(80);
             Bitmap thumbnail = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, true);
             imageView.setImageBitmap(thumbnail);
-            imageView.setTag(bitmap); // 保存原图供点击查看
+            imageView.setTag(bitmap);
 
-            // 点击查看大图
             imageView.setOnClickListener(v -> {
                 Bitmap originalBitmap = (Bitmap) v.getTag();
                 if (originalBitmap != null) {
@@ -270,35 +579,6 @@ public class OrganizeActivity extends BaseActivity {
         return imageView;
     }
 
-    /**
-     * 显示原始语音
-     */
-    private void displayOriginalVoices(List<String> voicePaths) {
-        if (voicePaths == null || voicePaths.isEmpty()) {
-            return;
-        }
-
-        // 添加标题
-        TextView voicesTitle = new TextView(this);
-        voicesTitle.setText("\n🎤 今日语音 (" + voicePaths.size() + "条)");
-        voicesTitle.setTextSize(16);
-        voicesTitle.setTypeface(voicesTitle.getTypeface(), android.graphics.Typeface.BOLD);
-        voicesTitle.setTextColor(Color.parseColor("#333333"));
-        voicesTitle.setPadding(0, dpToPx(8), 0, dpToPx(8));
-        aiVoicesContainer.addView(voicesTitle);
-
-        // 显示语音
-        for (String voicePath : voicePaths) {
-            LinearLayout voiceItem = createVoiceItem(voicePath);
-            aiVoicesContainer.addView(voiceItem);
-        }
-
-        aiVoicesContainer.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * 创建语音项
-     */
     private LinearLayout createVoiceItem(String voicePath) {
         LinearLayout voiceLayout = new LinearLayout(this);
         voiceLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -313,21 +593,18 @@ public class OrganizeActivity extends BaseActivity {
         params.setMargins(0, 0, 0, dpToPx(8));
         voiceLayout.setLayoutParams(params);
 
-        // 语音图标
         TextView voiceIcon = new TextView(this);
         voiceIcon.setText("🔊");
         voiceIcon.setTextSize(18);
         voiceIcon.setPadding(0, 0, dpToPx(8), 0);
         voiceLayout.addView(voiceIcon);
 
-        // 语音信息
         TextView voiceInfo = new TextView(this);
         voiceInfo.setText("语音记录");
         voiceInfo.setTextSize(14);
         voiceInfo.setTextColor(Color.parseColor("#666666"));
         voiceLayout.addView(voiceInfo);
 
-        // 播放按钮
         TextView playButton = new TextView(this);
         playButton.setText(" ▶ 播放");
         playButton.setTextSize(12);
@@ -342,88 +619,12 @@ public class OrganizeActivity extends BaseActivity {
         playParams.weight = 1;
         playButton.setLayoutParams(playParams);
 
-        playButton.setOnClickListener(v -> {
-            playVoice(voicePath);
-        });
-
+        playButton.setOnClickListener(v -> playVoice(voicePath));
         voiceLayout.addView(playButton);
 
         return voiceLayout;
     }
 
-    /**
-     * 保存完整结果（AI文字 + 图片 + 语音）
-     */
-    private void saveCompleteResult() {
-        // 获取AI生成的文字
-        String aiText = aiResultText.getText().toString();
-
-        if (aiText == null || aiText.isEmpty() || aiText.contains("正在分析") || aiText.contains("AI整合失败")) {
-            Toast.makeText(this, "请先生成有效的AI结果", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 获取当前日期
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-
-        // 创建日记对象
-        DiaryManager diaryManager = DiaryManager.getInstance(this);
-
-        // 从AI文字中提取纯内容（移除日期标题）
-        String content = extractContentFromAIText(aiText);
-
-        // 创建日记
-        String diaryId = "diary_" + System.currentTimeMillis();
-        String title = "日记 - " + currentDate;
-        Diary diary = new Diary(diaryId, title, content, currentDate);
-
-        // 保存日记
-        diaryManager.addDiary(diary);
-
-        // 显示成功消息
-        String displayDate = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault()).format(new Date());
-        Toast.makeText(this, "✅ 已保存为" + displayDate + "的日记", Toast.LENGTH_LONG).show();
-
-        // 清空结果区域
-        clearAIResult();
-
-        // 可选：跳转到日记查看页面
-        // Intent intent = new Intent(this, DiaryListActivity.class);
-        // startActivity(intent);
-    }
-
-    /**
-     * 从AI文字中提取纯内容
-     */
-    private String extractContentFromAIText(String aiText) {
-        // 移除开头的日期行
-        String[] lines = aiText.split("\n");
-        StringBuilder content = new StringBuilder();
-
-        for (String line : lines) {
-            if (!line.startsWith("📅") && !line.trim().isEmpty()) {
-                content.append(line).append("\n");
-            }
-        }
-
-        return content.toString().trim();
-    }
-
-    /**
-     * 清空AI结果
-     */
-    private void clearAIResult() {
-        aiResultSection.setVisibility(View.GONE);
-        aiResultText.setText("等待AI处理...");
-        aiImagesContainer.removeAllViews();
-        aiVoicesContainer.removeAllViews();
-        aiImagesContainer.setVisibility(View.GONE);
-        aiVoicesContainer.setVisibility(View.GONE);
-    }
-
-    /**
-     * 播放语音
-     */
     private void playVoice(String voicePath) {
         if (voicePath == null || voicePath.isEmpty()) return;
 
@@ -515,7 +716,6 @@ public class OrganizeActivity extends BaseActivity {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
 
-        // 顶部行：时间、心情、标签
         LinearLayout topRow = new LinearLayout(this);
         topRow.setOrientation(LinearLayout.HORIZONTAL);
         topRow.setLayoutParams(new LinearLayout.LayoutParams(
@@ -572,7 +772,6 @@ public class OrganizeActivity extends BaseActivity {
 
         noteLayout.addView(topRow);
 
-        // 内容
         if (note.getContent() != null && !note.getContent().isEmpty()) {
             TextView contentText = new TextView(this);
             contentText.setText(note.getContent());
@@ -587,7 +786,6 @@ public class OrganizeActivity extends BaseActivity {
             noteLayout.addView(contentText);
         }
 
-        // 显示语音
         if (note.hasVoice() && note.getVoicePath() != null) {
             LinearLayout voiceLayout = createVoiceView(note);
             LinearLayout.LayoutParams voiceParams = new LinearLayout.LayoutParams(
@@ -599,7 +797,6 @@ public class OrganizeActivity extends BaseActivity {
             noteLayout.addView(voiceLayout);
         }
 
-        // 显示图片
         if (note.hasPhoto() && note.getImagePath() != null) {
             ImageView photoView = createPhotoView(note);
             LinearLayout.LayoutParams photoParams = new LinearLayout.LayoutParams(
@@ -621,13 +818,7 @@ public class OrganizeActivity extends BaseActivity {
         voiceLayout.setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
         voiceLayout.setGravity(Gravity.CENTER_VERTICAL);
 
-        // 设置点击播放功能
-        voiceLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playVoiceNote(note.getVoicePath());
-            }
-        });
+        voiceLayout.setOnClickListener(v -> playVoiceNote(note.getVoicePath()));
 
         TextView voiceIcon = new TextView(this);
         voiceIcon.setText("🔊");
@@ -652,7 +843,6 @@ public class OrganizeActivity extends BaseActivity {
         if (voicePath == null || voicePath.isEmpty()) return;
 
         try {
-            // 如果正在播放，先停止
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
@@ -663,13 +853,9 @@ public class OrganizeActivity extends BaseActivity {
             mediaPlayer.prepare();
             mediaPlayer.start();
 
-            // 播放完成后的处理
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.release();
-                    mediaPlayer = null;
-                }
+            mediaPlayer.setOnCompletionListener(mp -> {
+                mp.release();
+                mediaPlayer = null;
             });
 
         } catch (IOException e) {
@@ -682,24 +868,18 @@ public class OrganizeActivity extends BaseActivity {
         photoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         photoView.setBackgroundResource(R.drawable.bg_dashed_border);
 
-        // 加载图片
         Bitmap bitmap = loadImageFromStorage(note.getImagePath());
         if (bitmap != null) {
             photoView.setImageBitmap(bitmap);
-            photoView.setTag(bitmap); // 存储bitmap供大图查看使用
+            photoView.setTag(bitmap);
 
-            // 设置点击查看大图功能
-            photoView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bitmap clickedBitmap = (Bitmap) v.getTag();
-                    if (clickedBitmap != null) {
-                        showImageDialog(clickedBitmap);
-                    }
+            photoView.setOnClickListener(v -> {
+                Bitmap clickedBitmap = (Bitmap) v.getTag();
+                if (clickedBitmap != null) {
+                    showImageDialog(clickedBitmap);
                 }
             });
         } else {
-            // 如果图片加载失败，显示占位符
             photoView.setImageResource(R.drawable.ic_photo_placeholder);
             photoView.setScaleType(ImageView.ScaleType.CENTER);
         }
@@ -710,14 +890,12 @@ public class OrganizeActivity extends BaseActivity {
     private void showImageDialog(Bitmap bitmap) {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
 
-        // 使用原有的dialog_image_view布局
         View dialogView = android.view.LayoutInflater.from(this).inflate(R.layout.dialog_image_view, null);
         builder.setView(dialogView);
 
         ImageView dialogImageView = dialogView.findViewById(R.id.dialogImageView);
         Button closeDialogButton = dialogView.findViewById(R.id.closeDialogButton);
 
-        // 移除保存按钮
         Button saveImageButton = dialogView.findViewById(R.id.saveImageButton);
         if (saveImageButton != null) {
             saveImageButton.setVisibility(View.GONE);
@@ -727,12 +905,7 @@ public class OrganizeActivity extends BaseActivity {
 
         android.app.AlertDialog dialog = builder.create();
 
-        closeDialogButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        closeDialogButton.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
