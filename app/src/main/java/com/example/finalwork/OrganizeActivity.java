@@ -6,9 +6,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,8 +31,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class OrganizeActivity extends BaseActivity {
     private static final String DIARY_CACHE_FILE = "today_diary_cache.json";
@@ -39,6 +43,12 @@ public class OrganizeActivity extends BaseActivity {
     // 风格选择相关
     private RadioGroup styleRadioGroup;
     private AIProcessor.DiaryStyle selectedStyle = AIProcessor.DiaryStyle.SIMPLE;
+    // 碎片选择相关
+    private CheckBox selectAllCheckbox;
+    private TextView selectedCountText;
+    private LinearLayout fragmentControlLayout;
+    private Map<String, Boolean> selectedNotes = new HashMap<>();
+    private List<CheckBox> noteCheckBoxes = new ArrayList<>();
 
     // Tab相关
     private Button tabFragments, tabDiary;
@@ -219,6 +229,11 @@ public class OrganizeActivity extends BaseActivity {
         aiProcessor = new AIProcessor(this);
         styleRadioGroup = findViewById(R.id.style_radio_group);
         setupStyleSelection();
+        // 初始化碎片选择
+        selectAllCheckbox = findViewById(R.id.select_all_checkbox);
+        selectedCountText = findViewById(R.id.selected_count_text);
+        fragmentControlLayout = findViewById(R.id.fragment_control_layout);
+        setupFragmentSelection();
     }
     private void setupStyleSelection() {
         styleRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
@@ -231,6 +246,41 @@ public class OrganizeActivity extends BaseActivity {
             }
         });
     }
+    private void setupFragmentSelection() {
+        selectAllCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // 全选/取消全选所有碎片
+            for (CheckBox checkBox : noteCheckBoxes) {
+                checkBox.setChecked(isChecked);
+            }
+            updateSelectedNotes();
+        });
+    }
+
+    private void updateSelectedNotes() {
+        selectedNotes.clear();
+        int selectedCount = 0;
+
+        for (int i = 0; i < noteCheckBoxes.size(); i++) {
+            CheckBox checkBox = noteCheckBoxes.get(i);
+            if (checkBox.isChecked()) {
+                selectedNotes.put(todayNotesList.get(i).getId(), true);
+                selectedCount++;
+            }
+        }
+
+        selectedCountText.setText("已选择 " + selectedCount + " 项");
+
+        // 更新全选按钮状态
+        selectAllCheckbox.setOnCheckedChangeListener(null);
+        selectAllCheckbox.setChecked(selectedCount == todayNotesList.size());
+        selectAllCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            for (CheckBox cb : noteCheckBoxes) {
+                cb.setChecked(isChecked);
+            }
+            updateSelectedNotes();
+        });
+    }
+
 
     private void setupTabSwitching() {
         tabFragments.setOnClickListener(v -> switchToFragmentsTab());
@@ -264,8 +314,11 @@ public class OrganizeActivity extends BaseActivity {
     private void setupAIProcessing() {
         // 保持原有的AI处理逻辑
         aiProcessBtn.setOnClickListener(v -> {
-            if (todayNotesList.isEmpty()) {
-                Toast.makeText(this, "请先添加一些碎片再使用AI整合", Toast.LENGTH_SHORT).show();
+            // 获取选中的笔记
+            List<Note> selectedNotesList = getSelectedNotes();
+
+            if (selectedNotesList.isEmpty()) {
+                Toast.makeText(this, "请至少选择一个碎片进行AI整合", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -276,12 +329,10 @@ public class OrganizeActivity extends BaseActivity {
             aiVoicesContainer.setVisibility(View.GONE);
 
             // 显示加载状态
-            aiResultText.setText("🤖 智谱AI正在分析" + todayNotesList.size() + "个碎片...\n请耐心等待");
+            aiResultText.setText("🤖 AI正在分析" + todayNotesList.size() + "个碎片...\n请耐心等待");
             aiResultSection.setVisibility(View.VISIBLE);
             aiProcessBtn.setEnabled(false);
             aiProcessBtn.setText("AI处理中...");
-
-            // 调用AI处理
             // 调用AI处理
             aiProcessor.processNotes(todayNotesList, selectedStyle, new AIProcessor.AIProcessCallback() {
 
@@ -439,6 +490,16 @@ public class OrganizeActivity extends BaseActivity {
         // 同时在日记Tab中显示
         //displayDiaryVoices(voicePaths);
     }
+    private List<Note> getSelectedNotes() {
+        List<Note> selected = new ArrayList<>();
+        for (int i = 0; i < todayNotesList.size(); i++) {
+            if (i < noteCheckBoxes.size() && noteCheckBoxes.get(i).isChecked()) {
+                selected.add(todayNotesList.get(i));
+            }
+        }
+        return selected;
+    }
+
 
 
 
@@ -692,21 +753,28 @@ public class OrganizeActivity extends BaseActivity {
 
     private void refreshNotesDisplay() {
         timelineContainer.removeAllViews();
+        noteCheckBoxes.clear();
 
         if (todayNotesList.isEmpty()) {
             emptyStateText.setVisibility(View.VISIBLE);
             timelineContainer.setVisibility(View.GONE);
+            fragmentControlLayout.setVisibility(View.GONE);
         } else {
             emptyStateText.setVisibility(View.GONE);
             timelineContainer.setVisibility(View.VISIBLE);
+            fragmentControlLayout.setVisibility(View.VISIBLE);
 
             for (int i = 0; i < todayNotesList.size(); i++) {
                 Note note = todayNotesList.get(i);
                 View noteView = createNoteView(note, i);
                 timelineContainer.addView(noteView);
             }
+
+            // 初始化选择状态（默认全选）
+            updateSelectedNotes();
         }
     }
+
 
     private View createNoteView(Note note, int position) {
         LinearLayout container = new LinearLayout(this);
@@ -718,13 +786,15 @@ public class OrganizeActivity extends BaseActivity {
         containerParams.setMargins(0, 0, 0, dpToPx(16));
         container.setLayoutParams(containerParams);
 
-        LinearLayout noteContentLayout = createNoteLayout(note, position);
-        container.addView(noteContentLayout);
+        // 直接调用修改后的 createNoteLayout 方法
+        LinearLayout noteLayout = createNoteLayout(note, position);
+        container.addView(noteLayout);
 
         return container;
     }
 
     private LinearLayout createNoteLayout(Note note, int position) {
+        // 主容器 - 这是笔记框本身
         LinearLayout noteLayout = new LinearLayout(this);
         noteLayout.setOrientation(LinearLayout.VERTICAL);
         noteLayout.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
@@ -734,6 +804,7 @@ public class OrganizeActivity extends BaseActivity {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
 
+        // === 1. 创建顶部行（选择框 + 时间 + 心情 + 标签） ===
         LinearLayout topRow = new LinearLayout(this);
         topRow.setOrientation(LinearLayout.HORIZONTAL);
         topRow.setLayoutParams(new LinearLayout.LayoutParams(
@@ -742,9 +813,28 @@ public class OrganizeActivity extends BaseActivity {
         ));
         topRow.setGravity(Gravity.CENTER_VERTICAL);
 
+        // 添加选择框
+        CheckBox noteCheckBox = new CheckBox(this);
+        noteCheckBox.setId(View.generateViewId());
+        noteCheckBox.setChecked(true); // 默认选中
+        noteCheckBoxes.add(noteCheckBox);
+
+        // 设置选择框的布局参数
+        LinearLayout.LayoutParams checkBoxParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        checkBoxParams.setMargins(0, 0, dpToPx(8), 0);
+        noteCheckBox.setLayoutParams(checkBoxParams);
+
+        noteCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateSelectedNotes();
+        });
+
+        // 添加时间文本
         TextView timeText = new TextView(this);
         timeText.setText(note.getTime());
-        timeText.setTextSize(12);
+        timeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         timeText.setTextColor(Color.parseColor("#666666"));
         LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(
                 0,
@@ -752,12 +842,16 @@ public class OrganizeActivity extends BaseActivity {
         );
         timeParams.weight = 1;
         timeText.setLayoutParams(timeParams);
+
+        // 将选择框和时间添加到顶部行
+        topRow.addView(noteCheckBox);
         topRow.addView(timeText);
 
+        // 添加心情（如果有）
         if (note.getMood() != null && !note.getMood().isEmpty()) {
             TextView moodView = new TextView(this);
             moodView.setText(" " + note.getMood());
-            moodView.setTextSize(10);
+            moodView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
             moodView.setTextColor(Color.WHITE);
             moodView.setBackgroundColor(Color.parseColor("#FF6B9C"));
             moodView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
@@ -771,10 +865,11 @@ public class OrganizeActivity extends BaseActivity {
             topRow.addView(moodView);
         }
 
+        // 添加标签（如果有）
         if (note.getTag() != null && !note.getTag().isEmpty()) {
             TextView tagView = new TextView(this);
             tagView.setText(" " + note.getTag());
-            tagView.setTextSize(10);
+            tagView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
             tagView.setTextColor(Color.WHITE);
             tagView.setBackgroundColor(Color.parseColor("#4CAF50"));
             tagView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
@@ -788,12 +883,15 @@ public class OrganizeActivity extends BaseActivity {
             topRow.addView(tagView);
         }
 
+        // 将顶部行添加到主容器
         noteLayout.addView(topRow);
 
+        // === 2. 添加内容文本 ===
         if (note.getContent() != null && !note.getContent().isEmpty()) {
             TextView contentText = new TextView(this);
             contentText.setText(note.getContent());
-            contentText.setTextSize(14);
+            contentText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            contentText.setTextColor(Color.parseColor("#333333"));
             contentText.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -804,6 +902,7 @@ public class OrganizeActivity extends BaseActivity {
             noteLayout.addView(contentText);
         }
 
+        // === 3. 添加语音播放按钮（如果有） ===
         if (note.hasVoice() && note.getVoicePath() != null) {
             LinearLayout voiceLayout = createVoiceView(note);
             LinearLayout.LayoutParams voiceParams = new LinearLayout.LayoutParams(
@@ -815,6 +914,7 @@ public class OrganizeActivity extends BaseActivity {
             noteLayout.addView(voiceLayout);
         }
 
+        // === 4. 添加图片预览（如果有） ===
         if (note.hasPhoto() && note.getImagePath() != null) {
             ImageView photoView = createPhotoView(note);
             LinearLayout.LayoutParams photoParams = new LinearLayout.LayoutParams(
