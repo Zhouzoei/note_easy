@@ -112,27 +112,17 @@ public class AIProcessor {
             try {
                 publishProgress("正在收集文本内容...");
 
-                // 1. 收集所有信息（为保持接口兼容）
+                // 1. 只处理传入的笔记（已经是选中的笔记）
                 List<String> imagePaths = new ArrayList<>();
                 List<String> voicePaths = new ArrayList<>();
                 StringBuilder allText = new StringBuilder();
 
                 // 按时间排序
-                List<Note> sortedNotes = new ArrayList<>(notes);
+                List<Note> sortedNotes = new ArrayList<>(notes); // notes已经是选中的笔记
                 Collections.sort(sortedNotes, (n1, n2) -> n1.getTime().compareTo(n2.getTime()));
 
                 int textCount = 0;
                 for (Note note : sortedNotes) {
-                    // 收集图片路径（仅为记录）
-                    if (note.hasPhoto() && note.getImagePath() != null) {
-                        imagePaths.add(note.getImagePath());
-                    }
-
-                    // 收集语音路径（仅为记录）
-                    if (note.hasVoice() && note.getVoicePath() != null) {
-                        voicePaths.add(note.getVoicePath());
-                    }
-
                     // 收集文本内容
                     if (note.getContent() != null && !note.getContent().isEmpty()) {
                         textCount++;
@@ -148,6 +138,15 @@ public class AIProcessor {
 
                         allText.append(note.getContent()).append("\n");
                     }
+
+                    // 只收集当前笔记的图片和音频
+                    if (note.hasPhoto() && note.getImagePath() != null) {
+                        imagePaths.add(note.getImagePath());
+                    }
+
+                    if (note.hasVoice() && note.getVoicePath() != null) {
+                        voicePaths.add(note.getVoicePath());
+                    }
                 }
 
                 if (textCount == 0) {
@@ -159,8 +158,7 @@ public class AIProcessor {
                 // 2. 调用AI API进行文本处理
                 String aiText = callZhipuTextAPI(allText.toString(), textCount, style);
 
-
-                // 3. 返回结果
+                // 3. 返回结果（只包含选中笔记的图片和音频）
                 Map<String, Object> result = new HashMap<>();
                 result.put("aiText", aiText);
                 result.put("imagePaths", imagePaths);
