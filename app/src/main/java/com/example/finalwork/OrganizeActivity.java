@@ -334,7 +334,9 @@ public class OrganizeActivity extends BaseActivity {
             aiProcessBtn.setEnabled(false);
             aiProcessBtn.setText("AI处理中...");
             // 调用AI处理
-            aiProcessor.processNotes(todayNotesList, selectedStyle, new AIProcessor.AIProcessCallback() {
+            // 调用AI处理 - 传递选中的笔记而不是所有笔记
+            aiProcessor.processNotes(selectedNotesList, selectedStyle, new AIProcessor.AIProcessCallback() {
+
 
                 @Override
                 public void onSuccess(String aiText, List<String> imagePaths, List<String> voicePaths) {
