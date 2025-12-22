@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,9 +35,10 @@ import java.util.Locale;
 public class OrganizeActivity extends BaseActivity {
     private static final String DIARY_CACHE_FILE = "today_diary_cache.json";
     private static final String DIARY_DATE_KEY = "diary_date";
-
-
     private static final String NOTES_FILE = "notes.json";
+    // 风格选择相关
+    private RadioGroup styleRadioGroup;
+    private AIProcessor.DiaryStyle selectedStyle = AIProcessor.DiaryStyle.SIMPLE;
 
     // Tab相关
     private Button tabFragments, tabDiary;
@@ -215,6 +217,19 @@ public class OrganizeActivity extends BaseActivity {
         }
 
         aiProcessor = new AIProcessor(this);
+        styleRadioGroup = findViewById(R.id.style_radio_group);
+        setupStyleSelection();
+    }
+    private void setupStyleSelection() {
+        styleRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.style_simple) {
+                selectedStyle = AIProcessor.DiaryStyle.SIMPLE;
+            } else if (checkedId == R.id.style_literary) {
+                selectedStyle = AIProcessor.DiaryStyle.LITERARY;
+            } else if (checkedId == R.id.style_humorous) {
+                selectedStyle = AIProcessor.DiaryStyle.HUMOROUS;
+            }
+        });
     }
 
     private void setupTabSwitching() {
@@ -267,7 +282,9 @@ public class OrganizeActivity extends BaseActivity {
             aiProcessBtn.setText("AI处理中...");
 
             // 调用AI处理
-            aiProcessor.processNotes(todayNotesList, new AIProcessor.AIProcessCallback() {
+            // 调用AI处理
+            aiProcessor.processNotes(todayNotesList, selectedStyle, new AIProcessor.AIProcessCallback() {
+
                 @Override
                 public void onSuccess(String aiText, List<String> imagePaths, List<String> voicePaths) {
                     runOnUiThread(() -> {
@@ -504,7 +521,8 @@ public class OrganizeActivity extends BaseActivity {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         // 使用DiaryManager保存AI日记
-        diaryManager.saveAIDiary(content, currentImagePaths, currentVoicePaths);
+        diaryManager.saveAIDiary(content, currentImagePaths, currentVoicePaths, selectedStyle);
+
 
         // 保存到今日缓存
         currentDiaryContent = content;

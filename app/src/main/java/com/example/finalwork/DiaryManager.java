@@ -61,8 +61,8 @@ public class DiaryManager {
     /**
      * 保存AI生成的日记（修复版本）
      */
-    public void saveAIDiary(String aiContent, List<String> imagePaths, List<String> voicePaths) {
-        Diary diary = Diary.fromAIResult(aiContent, imagePaths, voicePaths);
+    public void saveAIDiary(String aiContent, List<String> imagePaths, List<String> voicePaths, AIProcessor.DiaryStyle style) {
+        Diary diary = Diary.fromAIResult(aiContent, imagePaths, voicePaths, style);
         addDiary(diary);
     }
 

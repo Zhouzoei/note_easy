@@ -24,7 +24,7 @@ import java.util.Map;
 public class AIProcessor {
 
     // ==================== 智谱AI配置 ====================
-    private static final String ZHIPU_API_KEY = "9fc5e1d6ea014e2abc98107dced82075.tDhbqOiu5gCHiVgO"; // 替换为你的智谱API Key
+    private static final String ZHIPU_API_KEY = "cf3f062141734d7a9c213ed0b254d59a.JJRrbfVN7ujgrKKy"; // 替换为你的智谱API Key
     private static final String ZHIPU_API_URL = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
 
     // 使用GLM-4.5-Flash模型（推荐用于文本处理）
@@ -32,6 +32,27 @@ public class AIProcessor {
 
     private Context context;
     private Gson gson;
+    public enum DiaryStyle {
+        SIMPLE("简洁风格", "用简洁明了的语言记录，重点突出核心事件和感受"),
+        LITERARY("文艺风格", "用优美的文字表达，注重情感渲染和意境营造"),
+        HUMOROUS("轻松幽默风格", "用轻松幽默的语调，让日记读起来更有趣");
+
+        private final String displayName;
+        private final String description;
+
+        DiaryStyle(String displayName, String description) {
+            this.displayName = displayName;
+            this.description = description;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 
     public interface AIProcessCallback {
         void onSuccess(String aiText, List<String> imagePaths, List<String> voicePaths);
@@ -47,7 +68,7 @@ public class AIProcessor {
     /**
      * 主处理方法 - 仅文本处理
      */
-    public void processNotes(List<Note> notes, AIProcessCallback callback) {
+    public void processNotes(List<Note> notes, DiaryStyle style, AIProcessCallback callback) {
         if (notes == null || notes.isEmpty()) {
             callback.onFailure("没有可处理的笔记");
             return;
@@ -60,21 +81,25 @@ public class AIProcessor {
 
         // 开始处理
         callback.onProgress("正在分析笔记内容...");
-        new ZhipuAIRequestTask(notes, callback).execute();
+        new ZhipuAIRequestTask(notes, style, callback).execute();
     }
+
 
     /**
      * 异步任务类 - 只处理文本
      */
     private class ZhipuAIRequestTask extends AsyncTask<Void, String, Map<String, Object>> {
         private List<Note> notes;
+        private DiaryStyle style;
         private AIProcessCallback callback;
         private Exception exception;
 
-        public ZhipuAIRequestTask(List<Note> notes, AIProcessCallback callback) {
+        public ZhipuAIRequestTask(List<Note> notes, DiaryStyle style, AIProcessCallback callback) {
             this.notes = notes;
+            this.style = style != null ? style : DiaryStyle.SIMPLE;
             this.callback = callback;
         }
+
 
         @Override
         protected void onPreExecute() {
@@ -132,7 +157,8 @@ public class AIProcessor {
                 publishProgress("正在调用智谱AI-GLM-4.5-Flash...");
 
                 // 2. 调用AI API进行文本处理
-                String aiText = callZhipuTextAPI(allText.toString(), textCount);
+                String aiText = callZhipuTextAPI(allText.toString(), textCount, style);
+
 
                 // 3. 返回结果
                 Map<String, Object> result = new HashMap<>();
@@ -180,8 +206,8 @@ public class AIProcessor {
     /**
      * 调用智谱AI API（仅文本处理）
      */
-    private String callZhipuTextAPI(String allText, int textCount) throws Exception {
-        // 构建消息数组
+    private String callZhipuTextAPI(String allText, int textCount, DiaryStyle style) throws Exception {
+    // 构建消息数组
         JsonArray messages = new JsonArray();
 
         // 构建用户消息
@@ -189,7 +215,7 @@ public class AIProcessor {
         userMessage.addProperty("role", "user");
 
         // 构建提示词
-        String prompt = buildTextPrompt(allText, textCount);
+        String prompt = buildTextPrompt(allText, textCount,style);
         userMessage.addProperty("content", prompt);
         messages.add(userMessage);
 
@@ -217,29 +243,61 @@ public class AIProcessor {
     /**
      * 构建文本处理的提示词
      */
-    private String buildTextPrompt(String allText, int textCount) {
+    private String buildTextPrompt(String allText, int textCount, DiaryStyle style) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("你是一位日记整理助手，擅长将碎片化的日常记录整合成流畅的日记，不要过多扩展。\n\n");
+        switch (style) {
+            case SIMPLE:
+                prompt.append("你是一位简洁日记助手，擅长用简练的语言整理日常记录。\n\n");
+                prompt.append("请将以下碎片化内容整理成简洁明了的日记：\n");
+                prompt.append("要求：语言简练，突出重点，避免冗余描述，字数控制在100-300字。\n\n");
+                break;
+
+            case LITERARY:
+                prompt.append("你是一位文艺日记助手，擅长用优美的文字表达情感。\n\n");
+                prompt.append("请将以下碎片化内容整理成富有文采的日记：\n");
+                prompt.append("要求：文字优美，注重情感表达，适当使用修辞手法。\n\n");
+                break;
+
+            case HUMOROUS:
+                prompt.append("你是一位幽默日记助手，擅长用轻松的语调记录生活。\n\n");
+                prompt.append("请将以下碎片化内容整理成有趣的日记：\n");
+                prompt.append("要求：语调轻松，适当加入幽默元素，让日记更有趣，保持积极乐观。\n\n");
+                break;
+        }
 
         prompt.append("以下是我今天记录的").append(textCount).append("条碎片化内容（按时间顺序）：\n");
         prompt.append("```\n");
         prompt.append(allText);
         prompt.append("```\n\n");
 
-        prompt.append("请帮我完成以下任务：\n");
-        prompt.append("1. 理解每条记录的情境、情绪和事件\n");
+        prompt.append("整理要求：\n");
+        prompt.append("1. 理解每条记录的情境、情绪和事件，避免冗余描述，字数控制在100-300字\n");
         prompt.append("2. 按时间顺序将这些碎片串联成连贯的叙事\n");
         prompt.append("3. 保持原文的核心信息和情绪基调\n");
         prompt.append("4. 使用自然的连接词使段落流畅\n");
-        prompt.append("5. 适当少的润色语言，使日记更可读\n");
 
-        prompt.append("输出要求：\n");
+        // 根据风格添加特定要求
+        switch (style) {
+            case SIMPLE:
+                prompt.append("5. 突出重点事件，省略不必要的细节\n");
+                break;
+            case LITERARY:
+                prompt.append("5. 适当使用比喻、拟人等修辞手法\n");
+                prompt.append("6. 注重文字的美感和节奏感\n");
+                break;
+            case HUMOROUS:
+                prompt.append("5. 适当加入有趣的观察\n");
+                prompt.append("6. 保持轻松愉快的语调，让读者会心一笑\n");
+                break;
+        }
+
+        prompt.append("\n输出要求：\n");
         prompt.append("- 不要添加额外标题\n");
         prompt.append("- 不要使用" + "“根据记录”" + "、" + "“作为助手”" + "等开场白\n");
         prompt.append("- 直接输出整理后的日记正文\n");
         prompt.append("- 字数约100-500字\n");
-        prompt.append("- 用第一人称“我”来叙述\n");
+        prompt.append("- 用第一人称来叙述\n");
         prompt.append("- 保持温暖、自然、简单的写作风格\n\n");
 
         prompt.append("请开始整理：");

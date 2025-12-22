@@ -16,6 +16,7 @@ public class Diary {
     private List<String> voicePaths; // 修复：移除static
     private int moodCount;
     private int wordCount;
+    private String style;
 
     public Diary(String id, String title, String content, String date) {
         this.id = id;
@@ -29,7 +30,7 @@ public class Diary {
     }
 
     // 修复：fromAIResult方法需要接收图片和语音路径
-    public static Diary fromAIResult(String aiContent, List<String> imagePaths, List<String> voicePaths) {
+    public static Diary fromAIResult(String aiContent, List<String> imagePaths, List<String> voicePaths, AIProcessor.DiaryStyle style) {
         String diaryId = "diary_" + System.currentTimeMillis();
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String title = "日记 - " + date;
@@ -37,8 +38,10 @@ public class Diary {
         Diary diary = new Diary(diaryId, title, aiContent, date);
         diary.setImagePaths(imagePaths);
         diary.setVoicePaths(voicePaths);
+        diary.setStyle(style != null ? style.getDisplayName() : "简洁风格");
         return diary;
     }
+
 
     // Getters and Setters
     public String getId() { return id; }
@@ -100,5 +103,12 @@ public class Diary {
         return "字数: " + wordCount +
                 " | 图片: " + imagePaths.size() + "张" +
                 " | 语音: " + voicePaths.size() + "条";
+    }
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
     }
 }
