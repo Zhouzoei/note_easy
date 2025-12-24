@@ -20,6 +20,8 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -291,6 +293,18 @@ public class FirstActivity extends BaseActivity {
         });
 
         dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams params = window.getAttributes();
+
+            // 依然设置宽度为 90%，让它在屏幕中间
+            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+            // 删掉这一行：window.YOUR_API_KEY_HERE(android.R.color.transparent);
+
+            window.setAttributes(params);
+        }
 
     }
 
