@@ -89,6 +89,9 @@ public class OrganizeActivity extends BaseActivity {
     private String currentDiaryContent = "";
     private List<String> currentImagePaths = new ArrayList<>();
     private List<String> currentVoicePaths = new ArrayList<>();
+    private LinearLayout styleHeaderLayout;
+    private ImageView ivStyleExpandArrow;
+    private TextView tvCurrentStyle;
 
     private DiaryManager diaryManager;
     @Override
@@ -233,6 +236,11 @@ public class OrganizeActivity extends BaseActivity {
 
         aiProcessor = new AIProcessor(this);
         styleRadioGroup = findViewById(R.id.style_radio_group);
+        styleHeaderLayout = findViewById(R.id.style_header_layout);
+        ivStyleExpandArrow = findViewById(R.id.iv_style_expand_arrow);
+        tvCurrentStyle = findViewById(R.id.tv_current_style);
+
+        setupStyleCollapsible();
         setupStyleSelection();
         // 初始化碎片选择
         selectAllCheckbox = findViewById(R.id.select_all_checkbox);
@@ -242,15 +250,46 @@ public class OrganizeActivity extends BaseActivity {
     }
     private void setupStyleSelection() {
         styleRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            String styleName = "简洁";
+
             if (checkedId == R.id.style_simple) {
                 selectedStyle = AIProcessor.DiaryStyle.SIMPLE;
+                styleName = "简洁";
             } else if (checkedId == R.id.style_literary) {
                 selectedStyle = AIProcessor.DiaryStyle.LITERARY;
+                styleName = "文艺";
             } else if (checkedId == R.id.style_humorous) {
                 selectedStyle = AIProcessor.DiaryStyle.HUMOROUS;
+                styleName = "幽默";
+            }
+
+            // === 新增：更新头部显示的文字 ===
+            tvCurrentStyle.setText("写作风格：" + styleName);
+        });
+    }
+
+    /**
+     * 设置风格选择区域的折叠/展开逻辑
+     */
+    private void setupStyleCollapsible() {
+        // 点击头部：切换展开/收起
+        styleHeaderLayout.setOnClickListener(v -> {
+            LinearLayout styleOptionsLayout = findViewById(R.id.style_options_layout);
+
+            if (styleOptionsLayout.getVisibility() == View.VISIBLE) {
+                // 收起
+                styleOptionsLayout.setVisibility(View.GONE);
+                // 箭头旋转回 0 度
+                ivStyleExpandArrow.animate().rotation(0).setDuration(200).start();
+            } else {
+                // 展开
+                styleOptionsLayout.setVisibility(View.VISIBLE);
+                // 箭头旋转到 180 度
+                ivStyleExpandArrow.animate().rotation(180).setDuration(200).start();
             }
         });
     }
+
     private void setupFragmentSelection() {
         selectAllCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // 全选/取消全选所有碎片

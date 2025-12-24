@@ -15,13 +15,12 @@
         android:fontFamily="sans-serif-light"
         android:textColor="@color/text_primary"
         android:letterSpacing="0.01"
-        android:padding="20dp"
+        android:padding="10dp"
         android:layout_marginBottom="10dp"
         android:layout_alignParentTop="true"
         android:gravity="center" />
 
-
-    <!-- Tab切换区域 - 长条圆角浅蓝背景 -->
+    <!-- Tab切换区域 -->
     <LinearLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
@@ -30,7 +29,7 @@
         android:orientation="horizontal"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="12dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/bg_tab_rounded_blue"
         android:padding="4dp">
@@ -62,30 +61,72 @@
             android:paddingVertical="10dp"
             android:stateListAnimator="@null"
             style="@style/Widget.AppCompat.Button.Borderless" />
-
     </LinearLayout>
 
-    <!-- AI风格选择区域 -->
-    <LinearLayout
-        android:id="@+id/style_selection_layout"
+    <!-- 1. AI整合按钮 -->
+    <Button
+        android:id="@+id/ai_process_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:text="🤖 AI整合碎片"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:background="@drawable/bg_btn_primary_blue"
+        android:textColor="#FFFFFF"
         android:layout_below="@id/tab_layout"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="@android:color/transparent"
-        android:padding="12dp">
+        android:layout_marginBottom="12dp"
+        android:stateListAnimator="@null"
+        android:elevation="4dp" />
+
+    <!-- 2. 风格选择头部 -->
+    <LinearLayout
+        android:id="@+id/style_header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/ai_process_btn"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_rounded_white_blue"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="选择AI写作风格"
+            android:layout_weight="1"
+            android:text="写作风格：简洁"
             android:textSize="14sp"
-            android:fontFamily="sans-serif-medium"
             android:textColor="@color/text_primary"
-            android:layout_marginBottom="12dp" />
+            android:drawablePadding="8dp"
+            android:id="@+id/tv_current_style" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@android:drawable/arrow_down_float"
+            android:id="@+id/iv_style_expand_arrow"
+            android:rotation="0" />
+    </LinearLayout>
+
+    <!-- 3. 风格选项详情 -->
+    <LinearLayout
+        android:id="@+id/style_options_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/style_header_layout"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_rounded_white_blue"
+        android:padding="12dp"
+        android:visibility="gone">
 
         <RadioGroup
             android:id="@+id/style_radio_group"
@@ -129,36 +170,18 @@
                 android:button="@null"
                 android:background="@drawable/bg_style_selection_blue"
                 android:padding="12dp"
+                android:layout_marginBottom="0dp"
                 android:gravity="center_vertical"
                 android:textColor="@drawable/bg_style_selected_blue" />
-
         </RadioGroup>
     </LinearLayout>
-
-    <!-- AI处理按钮 -->
-    <Button
-        android:id="@+id/ai_process_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🤖 AI整合碎片"
-        android:textSize="15sp"
-        android:fontFamily="sans-serif-medium"
-        android:background="@drawable/bg_btn_primary_blue"
-        android:textColor="#FFFFFF"
-        android:layout_below="@id/style_selection_layout"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
-        android:stateListAnimator="@null"
-        android:elevation="4dp" />
-
 
     <!-- 今日碎片内容区域 -->
     <ScrollView
         android:id="@+id/fragments_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/ai_process_btn"
+        android:layout_below="@id/style_options_layout"
         android:layout_above="@+id/bottom_navigation"
         android:padding="20dp"
         android:visibility="visible">
@@ -168,7 +191,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- 空白状态提示 -->
             <TextView
                 android:id="@+id/emptyStateText"
                 android:layout_width="match_parent"
@@ -180,7 +202,6 @@
                 android:padding="32dp"
                 android:visibility="visible" />
 
-            <!-- 碎片选择控制区域 -->
             <LinearLayout
                 android:id="@+id/fragment_control_layout"
                 android:layout_width="match_parent"
@@ -217,19 +238,14 @@
                     android:textColor="@color/card_white"
                     android:background="@drawable/bg_primary_mood_blue"
                     android:padding="4dp" />
-
             </LinearLayout>
 
-            <!-- 时间线记录容器 -->
             <LinearLayout
                 android:id="@+id/timelineContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
-
-                <!-- 这里将动态添加笔记碎片 -->
-            </LinearLayout>
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 
@@ -238,7 +254,7 @@
         android:id="@+id/diary_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/ai_process_btn"
+        android:layout_below="@id/style_options_layout"
         android:layout_above="@+id/bottom_navigation"
         android:padding="20dp"
         android:visibility="gone">
@@ -293,7 +309,6 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone">
 
-                <!-- 结果标题 -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -305,7 +320,6 @@
                     android:background="#F8F9FA"
                     android:gravity="center" />
 
-                <!-- AI生成结果内容区域 -->
                 <ScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -318,7 +332,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <!-- AI生成的文字 -->
                         <TextView
                             android:id="@+id/ai_result_text"
                             android:layout_width="match_parent"
@@ -327,13 +340,9 @@
                             android:textSize="14sp"
                             android:textColor="@color/text_primary"
                             android:lineSpacingMultiplier="1.4" />
-
-                        <!-- 这里动态添加图片和语音容器 -->
-
                     </LinearLayout>
                 </ScrollView>
 
-                <!-- 操作按钮 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -474,8 +483,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
-                </LinearLayout>
+                    android:layout_marginBottom="16dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -490,8 +498,7 @@
                     android:id="@+id/diary_voices_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                </LinearLayout>
+                    android:orientation="vertical" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

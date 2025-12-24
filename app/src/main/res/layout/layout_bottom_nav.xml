@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="#f0f0f0"
-    android:padding="10dp">
+    android:padding="9dp">
 
     <LinearLayout
         android:id="@+id/nav_record"
@@ -15,7 +15,7 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp">
+        android:padding="6dp">
 
         <ImageView
             android:layout_width="40dp"
@@ -33,7 +33,7 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp">
+        android:padding="6dp">
 
         <ImageView
             android:layout_width="40dp"
@@ -51,7 +51,7 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp">
+        android:padding="6dp">
 
         <ImageView
             android:layout_width="40dp"
@@ -69,7 +69,7 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp">
+        android:padding="6dp">
 
         <ImageView
             android:layout_width="40dp"
