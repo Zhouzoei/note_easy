@@ -2,17 +2,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/background_blue">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="24dp">
+        android:padding="20dp"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@drawable/bg_rounded_white_blue"
+            android:padding="24dp"
+            android:elevation="4dp">
 
             <!-- 应用标题 -->
             <LinearLayout
@@ -20,16 +24,17 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="30dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="碎片记录"
+                    android:text="随手记"
                     android:textSize="32sp"
                     android:textStyle="bold"
-                    android:padding="3dp" />
+                    android:textColor="@color/primary_blue"
+                    android:fontFamily="sans-serif-medium" />
 
             </LinearLayout>
 
@@ -39,7 +44,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="30dp"
-                android:background="@drawable/black_border">
+                android:background="@drawable/bg_rounded_white_blue"
+                android:elevation="2dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -47,7 +53,10 @@
                     android:text="用户注册"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:padding="12dp" />
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif-medium"
+                    android:padding="16dp"
+                    android:gravity="center" />
 
             </LinearLayout>
 
@@ -58,32 +67,26 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="20dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/black_border">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="用户名"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:background="@android:color/white" />
-
-                </LinearLayout>
+                    android:text="用户名"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:paddingBottom="8dp"
+                    android:fontFamily="sans-serif-medium" />
 
                 <EditText
                     android:id="@+id/etUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_gray_background"
-                    android:padding="12dp"
+                    android:background="@drawable/bg_dashed_border_blue"
+                    android:padding="16dp"
                     android:hint="请输入用户名（3-20位字符）"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_gray" />
 
             </LinearLayout>
 
@@ -94,32 +97,26 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="20dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/black_border">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="密码"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:background="@android:color/white" />
-
-                </LinearLayout>
+                    android:text="密码"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:paddingBottom="8dp"
+                    android:fontFamily="sans-serif-medium" />
 
                 <EditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_gray_background"
-                    android:padding="12dp"
+                    android:background="@drawable/bg_dashed_border_blue"
+                    android:padding="16dp"
                     android:hint="请输入密码（6-20位字符）"
                     android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_gray"
                     android:inputType="textPassword" />
 
             </LinearLayout>
@@ -131,32 +128,26 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="30dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/black_border">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="确认密码"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:padding="8dp"
-                        android:background="@android:color/white" />
-
-                </LinearLayout>
+                    android:text="确认密码"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:paddingBottom="8dp"
+                    android:fontFamily="sans-serif-medium" />
 
                 <EditText
                     android:id="@+id/etConfirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/edittext_gray_background"
-                    android:padding="12dp"
+                    android:background="@drawable/bg_dashed_border_blue"
+                    android:padding="16dp"
                     android:hint="请再次输入密码"
                     android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_gray"
                     android:inputType="textPassword" />
 
             </LinearLayout>
@@ -169,10 +160,13 @@
                 android:text="注册"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:background="@drawable/button_black_border"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="12dp"
-                android:padding="12dp" />
+                android:background="@drawable/bg_btn_primary_blue"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="16dp"
+                android:padding="16dp"
+                android:elevation="4dp"
+                android:stateListAnimator="@null"
+                android:fontFamily="sans-serif-medium" />
 
             <!-- 返回登录按钮 -->
             <Button
@@ -181,9 +175,12 @@
                 android:layout_height="wrap_content"
                 android:text="返回登录"
                 android:textSize="16sp"
-                android:background="@drawable/button_black_border"
-                android:textColor="@android:color/black"
-                android:padding="12dp" />
+                android:background="@drawable/bg_dashed_border_dark_blue"
+                android:textColor="@color/text_primary"
+                android:padding="16dp"
+                android:elevation="2dp"
+                android:stateListAnimator="@null"
+                android:fontFamily="sans-serif-medium" />
 
             <!-- 错误信息提示 -->
             <TextView
@@ -191,11 +188,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textColor="#FF0000"
+                android:textColor="@color/error_red"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:layout_marginTop="16dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:padding="12dp"
+                android:background="@drawable/bg_error_rounded_blue" />
 
         </LinearLayout>
     </ScrollView>

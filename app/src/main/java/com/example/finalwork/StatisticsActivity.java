@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -52,7 +54,7 @@ public class StatisticsActivity extends BaseActivity {
     private final Gson gson = new Gson();
     private Calendar currentCalendar;
     // 在现有的成员变量下面添加
-    private Button btnPreviousMonth, btnNextMonth;
+    private ImageView btnPreviousMonth, btnNextMonth;
     private DiaryManager diaryManager;
     private MediaPlayer mediaPlayer;
 
@@ -179,15 +181,15 @@ public class StatisticsActivity extends BaseActivity {
 
         switch (mood) {
             case "低落":
-                return Color.parseColor("#FF6B6B"); // 红色
+                return Color.parseColor("#0D47A1"); // 深蓝色
             case "平静":
-                return Color.parseColor("#4ECDC4"); // 青色
+                return Color.parseColor("#2196F3"); // 主蓝色
             case "愉快":
-                return Color.parseColor("#95E77E"); // 绿色
+                return Color.parseColor("#42A5F5"); // 浅蓝色
             case "兴奋":
-                return Color.parseColor("#FFD93D"); // 黄色
+                return Color.parseColor("#90CAF9"); // 最浅蓝色
             default:
-                return Color.parseColor("#A8DADC"); // 默认蓝色
+                return Color.parseColor("#BBDEFB"); // 默认浅蓝
         }
     }
 
@@ -354,8 +356,8 @@ public class StatisticsActivity extends BaseActivity {
         final TextView tvCurrentDate = dialogView.findViewById(R.id.tvCurrentDate);
         final TextView tvDayRecordsCount = dialogView.findViewById(R.id.tvDayRecordsCount);
         final TextView tvDayVoiceCount = dialogView.findViewById(R.id.tvDayVoiceCount);
-        Button btnPrevDay = dialogView.findViewById(R.id.btnPrevDay);
-        Button btnNextDay = dialogView.findViewById(R.id.btnNextDay);
+        ImageView btnPrevDay = dialogView.findViewById(R.id.btnPrevDay);
+        ImageView btnNextDay = dialogView.findViewById(R.id.btnNextDay);
         Button btnViewMonth = dialogView.findViewById(R.id.btnViewMonth);
         Button btnClose = dialogView.findViewById(R.id.btnClose);
         final LinearLayout recordsListContainer = dialogView.findViewById(R.id.recordsListContainer);
@@ -547,7 +549,7 @@ public class StatisticsActivity extends BaseActivity {
         LinearLayout noteItem = new LinearLayout(this);
         noteItem.setOrientation(LinearLayout.VERTICAL);
         noteItem.setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
-        noteItem.setBackgroundResource(R.drawable.bg_note_item);
+        noteItem.setBackgroundResource(R.drawable.bg_mood_blue);
 
         // 第一行：时间、心情、标签
         LinearLayout topRow = new LinearLayout(this);
@@ -573,17 +575,23 @@ public class StatisticsActivity extends BaseActivity {
         // 心情（如果有）
         if (note.getMood() != null && !note.getMood().isEmpty()) {
             TextView moodView = new TextView(this);
-            moodView.setText(" " + note.getMood() + " ");
-            moodView.setTextSize(10);
-            moodView.setTextColor(Color.WHITE);
-            moodView.setBackgroundColor(Color.parseColor("#FF6B9C"));
-            moodView.setPadding(dpToPx(6), dpToPx(2), dpToPx(6), dpToPx(2));
+            moodView.setText(note.getMood());
+            moodView.setTextSize(11);
+            moodView.setTextColor(getResources().getColor(R.color.text_primary));
+            moodView.setBackgroundResource(R.drawable.bg_dashed_border_blue);
+            moodView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
             moodView.setGravity(Gravity.CENTER);
+            moodView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                moodView.setElevation(2f);
+            }
+
             LinearLayout.LayoutParams moodParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            moodParams.setMargins(dpToPx(4), 0, 0, 0);
+            moodParams.setMargins(dpToPx(6), 0, 0, 0);
             moodView.setLayoutParams(moodParams);
             topRow.addView(moodView);
         }
@@ -591,17 +599,23 @@ public class StatisticsActivity extends BaseActivity {
         // 标签（如果有）
         if (note.getTag() != null && !note.getTag().isEmpty()) {
             TextView tagView = new TextView(this);
-            tagView.setText(" " + note.getTag() + " ");
-            tagView.setTextSize(10);
-            tagView.setTextColor(Color.WHITE);
-            tagView.setBackgroundColor(Color.parseColor("#4CAF50"));
-            tagView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+            tagView.setText(note.getTag());
+            tagView.setTextSize(11);
+            tagView.setTextColor(getResources().getColor(R.color.text_primary));
+            tagView.setBackgroundResource(R.drawable.bg_rec_gradient_blue);
+            tagView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
             tagView.setGravity(Gravity.CENTER);
+            tagView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                tagView.setElevation(2f);
+            }
+
             LinearLayout.LayoutParams tagParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            tagParams.setMargins(dpToPx(4), 0, 0, 0);
+            tagParams.setMargins(dpToPx(6), 0, 0, 0);
             tagView.setLayoutParams(tagParams);
             topRow.addView(tagView);
         }
@@ -1485,6 +1499,10 @@ public class StatisticsActivity extends BaseActivity {
     }
 
     private View createBarView(int value, int maxValue) {
+        LinearLayout barContainer = new LinearLayout(this);
+        barContainer.setOrientation(LinearLayout.VERTICAL);
+        barContainer.setGravity(Gravity.BOTTOM);
+
         View bar = new View(this);
 
         // 计算柱子的高度
@@ -1508,19 +1526,39 @@ public class StatisticsActivity extends BaseActivity {
         params.setMargins(6, 0, 6, 0);
         bar.setLayoutParams(params);
 
-        // 设置颜色
+        // === 新的颜色逻辑：平滑渐变 ===
         if (value > 0) {
-            if (value == maxValue) {
-                bar.setBackgroundColor(Color.parseColor("#1565C0"));
-            } else if (value > maxValue * 0.7) {
-                bar.setBackgroundColor(Color.parseColor("#1976D2"));
-            } else if (value > maxValue * 0.4) {
-                bar.setBackgroundColor(Color.parseColor("#2196F3"));
-            } else {
-                bar.setBackgroundColor(Color.parseColor("#64B5F6"));
-            }
+            // 根据高度比例计算蓝色深度
+            // 公式：蓝色值 = 180 + 75 * 比例（从180到255）
+            int blueValue = (int) (180 + 75 * heightRatio);
+            blueValue = Math.min(255, Math.max(180, blueValue)); // 确保在范围内
+
+            // 设置从浅蓝(#BBDEFB)到深蓝(#2196F3)的渐变
+            // RGB: #BBDEFB = (187, 222, 251)
+            // RGB: #2196F3 = (33, 150, 243)
+
+            int startRed = 187;
+            int startGreen = 222;
+            int startBlue = 251;
+
+            int endRed = 33;
+            int endGreen = 150;
+            int endBlue = 243;
+
+            // 线性插值计算当前颜色
+            int currentRed = (int) (startRed * (1 - heightRatio) + endRed * heightRatio);
+            int currentGreen = (int) (startGreen * (1 - heightRatio) + endGreen * heightRatio);
+            int currentBlue = (int) (startBlue * (1 - heightRatio) + endBlue * heightRatio);
+
+            int color = Color.rgb(currentRed, currentGreen, currentBlue);
+            bar.setBackgroundColor(color);
+
+            // 可选：添加圆角
+            bar.setBackgroundResource(R.drawable.bg_chart_bar_rounded_blue);
+
         } else {
-            bar.setBackgroundColor(Color.parseColor("#E0E0E0"));
+            // 无数据：浅灰色带透明度
+            bar.setBackgroundColor(Color.parseColor("#33BBDEFB"));
         }
 
         return bar;
@@ -1756,11 +1794,15 @@ public class StatisticsActivity extends BaseActivity {
         resetTabStyles();
         selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
 
-        TextView iconText = (TextView) selectedTab.getChildAt(0);
-        TextView labelText = (TextView) selectedTab.getChildAt(1);
-
-        iconText.setTextColor(Color.parseColor("#2196F3"));
-        labelText.setTextColor(Color.parseColor("#2196F3"));
+        // 根据新的XML结构，直接修改ImageView的颜色
+        if (selectedTab.getChildCount() > 0) {
+            View child = selectedTab.getChildAt(0);
+            if (child instanceof ImageView) {
+                ImageView imageView = (ImageView) child;
+                // 选中状态：深蓝色
+                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+        }
     }
 
     private void resetTabStyles() {
@@ -1771,11 +1813,15 @@ public class StatisticsActivity extends BaseActivity {
             if (tab != null) {
                 tab.setBackgroundColor(Color.TRANSPARENT);
 
-                TextView iconText = (TextView) tab.getChildAt(0);
-                TextView labelText = (TextView) tab.getChildAt(1);
-
-                if (iconText != null) iconText.setTextColor(Color.BLACK);
-                if (labelText != null) labelText.setTextColor(Color.BLACK);
+                // 重置图标颜色为未选中状态
+                if (tab.getChildCount() > 0) {
+                    View child = tab.getChildAt(0);
+                    if (child instanceof ImageView) {
+                        ImageView imageView = (ImageView) child;
+                        // 未选中状态：浅蓝色
+                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
+                    }
+                }
             }
         }
     }

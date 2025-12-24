@@ -3,42 +3,58 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:padding="24dp"
+    android:background="@drawable/bg_rounded_white_blue"
+    android:layout_margin="20dp"
+    android:elevation="8dp">
 
+    <!-- 图片预览区域 -->
     <ImageView
         android:id="@+id/dialogImageView"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true" />
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:background="@drawable/bg_rounded_white_blue"
+        android:padding="4dp"
+        android:layout_marginBottom="20dp"
+        android:elevation="2dp" />
 
+    <!-- 按钮区域 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="8dp">
 
+        <!-- 保存按钮 -->
         <Button
             android:id="@+id/saveImageButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:text="保存到相册"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_rounded_primary"
-            android:textColor="@android:color/white" />
+            android:background="@drawable/bg_btn_primary_blue"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:elevation="2dp"
+            android:stateListAnimator="@null" />
 
+        <!-- 关闭按钮 -->
         <Button
             android:id="@+id/closeDialogButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:text="关闭"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_rounded_border"
-            android:textColor="#666666" />
+            android:background="@drawable/bg_dashed_border_dark_blue"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:elevation="1dp"
+            android:stateListAnimator="@null" />
 
     </LinearLayout>
 

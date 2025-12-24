@@ -5,15 +5,20 @@ import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +37,8 @@ public class VoiceRecordDialog extends Dialog {
 
     // UI组件
     private TextView tvRecordingStatus, tvRecordingTime, tvPlayTime, tvRecordHint;
-    private TextView btnRecord, btnPlay, btnClose;
+    private TextView btnRecord, btnPlay;
+    private ImageButton btnClose;
     private View rippleEffect;
     private SeekBar seekBar;
     private Button btnDiscard, btnUseAudio;
@@ -66,17 +72,53 @@ public class VoiceRecordDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_voice_record);
 
-        // 设置弹窗样式
-        if (getWindow() != null) {
-            getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            getWindow().setLayout(
-                    (int) (context.getResources().getDisplayMetrics().widthPixels * 0.9),
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            );
+        // 设置弹窗窗口属性
+        Window window = getWindow();
+        if (window != null) {
+            // 设置背景透明，让圆角显示
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            // 设置窗口布局参数
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.CENTER;
+
+            // 设置宽度为屏幕宽度的85%
+            WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            if (windowManager != null) {
+                android.view.Display display = windowManager.getDefaultDisplay();
+                android.graphics.Point size = new android.graphics.Point();
+                display.getSize(size);
+                int screenWidth = size.x;
+                params.width = (int) (screenWidth * 0.85);
+            }
+
+            // 高度由内容决定
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+            // 设置背景变暗
+            params.dimAmount = 0.5f;
+
+            // 应用参数
+            window.setAttributes(params);
+
         }
 
         initViews();
         setClickListeners();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        // 确保窗口大小正确
+        Window window = getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setLayout(
+                    (int) (context.getResources().getDisplayMetrics().widthPixels * 0.85),
+                    WindowManager.LayoutParams.WRAP_CONTENT
+            );
+        }
     }
 
     private void initViews() {
