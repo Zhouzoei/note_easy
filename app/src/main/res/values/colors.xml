@@ -17,5 +17,20 @@
     <color name="tag_entertainment">#9C27B0</color>
     <color name="tag_health">#4CAF50</color>
     <color name="tag_other">#795548</color>
+    <!-- 主色系 -->
+    <color name="primary_blue">#2196F3</color>
+    <color name="secondary_blue">#BBDEFB</color>
+    <color name="background_blue">#F5F9FF</color>
+    <color name="card_white">#FFFFFF</color>
+
+    <!-- 文字颜色 -->
+    <color name="text_primary">#0D3B66</color>
+    <color name="text_gray">#546E7A</color>
+
+    <!-- 按钮颜色 -->
+    <color name="delete_blue">#0288D1</color>
+
+    <!-- 错误颜色 -->
+    <color name="error_red">#F44336</color>
 
 </resources>

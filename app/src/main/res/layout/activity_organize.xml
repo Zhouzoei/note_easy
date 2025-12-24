@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f9f9f9">
+    android:background="@color/background_blue">
 
     <!-- 标题区域 -->
     <TextView
@@ -10,21 +11,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="碎片整理"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:textSize="24sp"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/text_primary"
+        android:letterSpacing="0.01"
         android:padding="20dp"
         android:layout_marginBottom="10dp"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:gravity="center" />
 
-    <!-- Tab切换区域 -->
+
+    <!-- Tab切换区域 - 长条圆角浅蓝背景 -->
     <LinearLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_below="@id/title_text"
-        android:background="#FFFFFF"
-        android:elevation="2dp">
+        android:orientation="horizontal"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_tab_rounded_blue"
+        android:padding="4dp">
 
         <Button
             android:id="@+id/tab_fragments"
@@ -32,10 +41,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="今日碎片"
-            android:textSize="16sp"
-            android:textColor="#2196F3"
-            android:background="@drawable/tab_selected_bg"
-            android:padding="12dp" />
+            android:textSize="14sp"
+            android:textColor="@color/primary_blue"
+            android:background="@drawable/bg_tab_white_rounded"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:stateListAnimator="@null"
+            style="@style/Widget.AppCompat.Button.Borderless" />
 
         <Button
             android:id="@+id/tab_diary"
@@ -43,10 +55,84 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="今日日记"
-            android:textSize="16sp"
-            android:textColor="#666666"
-            android:background="@drawable/tab_normal_bg"
-            android:padding="12dp" />
+            android:textSize="14sp"
+            android:textColor="@color/text_gray"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:stateListAnimator="@null"
+            style="@style/Widget.AppCompat.Button.Borderless" />
+
+    </LinearLayout>
+
+    <!-- AI风格选择区域 -->
+    <LinearLayout
+        android:id="@+id/style_selection_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/tab_layout"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="选择AI写作风格"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="12dp" />
+
+        <RadioGroup
+            android:id="@+id/style_radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/style_simple"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="简洁风格 - 简练明了，突出重点"
+                android:textSize="13sp"
+                android:checked="true"
+                android:button="@null"
+                android:background="@drawable/bg_style_selection_blue"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:textColor="@drawable/bg_style_selected_blue" />
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/style_literary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="文艺风格 - 优美文字，情感丰富"
+                android:textSize="13sp"
+                android:button="@null"
+                android:background="@drawable/bg_style_selection_blue"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:textColor="@drawable/bg_style_selected_blue" />
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/style_humorous"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="轻松幽默风格 - 有趣活泼，语调轻松"
+                android:textSize="13sp"
+                android:button="@null"
+                android:background="@drawable/bg_style_selection_blue"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:textColor="@drawable/bg_style_selected_blue" />
+
+        </RadioGroup>
     </LinearLayout>
 
     <!-- AI处理按钮 -->
@@ -55,71 +141,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="🤖 AI整合碎片"
-        android:textSize="16sp"
-        android:background="@drawable/bg_rounded_primary"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:background="@drawable/bg_btn_primary_blue"
         android:textColor="#FFFFFF"
-        android:layout_below="@id/tab_layout"
+        android:layout_below="@id/style_selection_layout"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp" />
-
-    <!-- AI风格选择区域 -->
-    <LinearLayout
-        android:id="@+id/style_selection_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ai_process_btn"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="15dp"
-        android:orientation="vertical"
-        android:background="#FFFFFF"
-        android:elevation="2dp"
-        android:padding="12dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="选择AI写作风格"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <RadioGroup
-            android:id="@+id/style_radio_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <RadioButton
-                android:id="@+id/style_simple"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="简洁风格 - 简练明了，突出重点"
-                android:textSize="13sp"
-                android:checked="true"
-                android:layout_marginBottom="4dp" />
-
-            <RadioButton
-                android:id="@+id/style_literary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="文艺风格 - 优美文字，情感丰富"
-                android:textSize="13sp"
-                android:layout_marginBottom="4dp" />
-
-            <RadioButton
-                android:id="@+id/style_humorous"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="轻松幽默风格 - 有趣活泼，语调轻松"
-                android:textSize="13sp" />
-
-        </RadioGroup>
-
-    </LinearLayout>
+        android:layout_marginBottom="20dp"
+        android:stateListAnimator="@null"
+        android:elevation="4dp" />
 
 
     <!-- 今日碎片内容区域 -->
@@ -127,7 +158,7 @@
         android:id="@+id/fragments_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/style_selection_layout"
+        android:layout_below="@id/ai_process_btn"
         android:layout_above="@+id/bottom_navigation"
         android:padding="20dp"
         android:visibility="visible">
@@ -144,10 +175,11 @@
                 android:layout_height="wrap_content"
                 android:text="今天还没有任何碎片，快去记录一下吧！"
                 android:textSize="14sp"
-                android:textColor="#666666"
+                android:textColor="@color/text_primary"
                 android:gravity="center"
                 android:padding="32dp"
                 android:visibility="visible" />
+
             <!-- 碎片选择控制区域 -->
             <LinearLayout
                 android:id="@+id/fragment_control_layout"
@@ -164,7 +196,7 @@
                     android:layout_height="wrap_content"
                     android:text="全选"
                     android:textSize="14sp"
-                    android:textColor="#333333"
+                    android:textColor="@color/primary_blue"
                     android:checked="true" />
 
                 <TextView
@@ -173,7 +205,7 @@
                     android:layout_weight="1"
                     android:text="选择要整理的碎片"
                     android:textSize="12sp"
-                    android:textColor="#666666"
+                    android:textColor="@color/text_primary"
                     android:layout_marginLeft="8dp" />
 
                 <TextView
@@ -182,8 +214,8 @@
                     android:layout_height="wrap_content"
                     android:text="已选择 0 项"
                     android:textSize="12sp"
-                    android:textColor="#2196F3"
-                    android:background="#E3F2FD"
+                    android:textColor="@color/card_white"
+                    android:background="@drawable/bg_primary_mood_blue"
                     android:padding="4dp" />
 
             </LinearLayout>
@@ -206,7 +238,7 @@
         android:id="@+id/diary_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/style_selection_layout"
+        android:layout_below="@id/ai_process_btn"
         android:layout_above="@+id/bottom_navigation"
         android:padding="20dp"
         android:visibility="gone">
@@ -222,6 +254,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:background="@drawable/bg_rounded_white_blue"
+                android:elevation="2dp"
+                android:padding="16dp"
                 android:layout_marginBottom="16dp">
 
                 <TextView
@@ -231,18 +266,20 @@
                     android:layout_weight="1"
                     android:text="2024年12月16日"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333" />
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary" />
 
                 <TextView
                     android:id="@+id/diary_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:text="未生成"
+                    android:gravity="center"
                     android:textSize="12sp"
-                    android:textColor="#999999"
-                    android:background="#F0F0F0"
-                    android:padding="4dp" />
+                    android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_circle_gradient_blue"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp" />
             </LinearLayout>
 
             <!-- AI结果区域 -->
@@ -251,7 +288,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_rounded_white_blue"
                 android:elevation="2dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone">
@@ -262,7 +299,8 @@
                     android:layout_height="wrap_content"
                     android:text="✨ AI整合结果"
                     android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary"
                     android:padding="12dp"
                     android:background="#F8F9FA"
                     android:gravity="center" />
@@ -287,6 +325,7 @@
                             android:layout_height="wrap_content"
                             android:text="等待AI处理..."
                             android:textSize="14sp"
+                            android:textColor="@color/text_primary"
                             android:lineSpacingMultiplier="1.4" />
 
                         <!-- 这里动态添加图片和语音容器 -->
@@ -310,8 +349,9 @@
                         android:text="编辑"
                         android:textSize="14sp"
                         android:layout_marginRight="4dp"
-                        android:background="@drawable/bg_rounded_primary"
-                        android:textColor="#FFFFFF"
+                        android:background="@drawable/bg_rec_gradient_blue"
+                        android:textColor="@color/text_primary"
+                        android:stateListAnimator="@null"
                         android:visibility="gone" />
 
                     <Button
@@ -322,7 +362,9 @@
                         android:text="保存为日记"
                         android:textSize="14sp"
                         android:layout_marginRight="4dp"
-                        android:background="@drawable/bg_rounded_success"
+                        android:background="@drawable/bg_btn_primary_blue"
+                        android:textColor="#FFFFFF"
+                        android:stateListAnimator="@null"
                         android:visibility="gone" />
 
                     <Button
@@ -333,7 +375,9 @@
                         android:text="清空结果"
                         android:textSize="14sp"
                         android:layout_marginLeft="4dp"
-                        android:background="@drawable/bg_rounded_secondary"
+                        android:background="@drawable/bg_dashed_border_dark_blue"
+                        android:textColor="@color/text_primary"
+                        android:stateListAnimator="@null"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
@@ -344,7 +388,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_rounded_white_blue"
                 android:elevation="2dp"
                 android:padding="16dp"
                 android:layout_marginBottom="16dp"
@@ -363,8 +407,8 @@
                         android:layout_weight="1"
                         android:text="编辑日记"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#333333" />
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_primary" />
 
                     <Button
                         android:id="@+id/btn_cancel_edit"
@@ -372,9 +416,10 @@
                         android:layout_height="wrap_content"
                         android:text="取消"
                         android:textSize="12sp"
-                        android:background="@drawable/bg_rounded_secondary"
-                        android:textColor="#333333"
-                        android:layout_marginRight="8dp" />
+                        android:background="@drawable/bg_outline_button_blue"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginRight="8dp"
+                        android:stateListAnimator="@null" />
 
                     <Button
                         android:id="@+id/btn_save_edit"
@@ -382,8 +427,9 @@
                         android:layout_height="wrap_content"
                         android:text="保存"
                         android:textSize="12sp"
-                        android:background="@drawable/bg_rounded_success"
-                        android:textColor="#FFFFFF" />
+                        android:background="@drawable/bg_btn_primary_blue"
+                        android:textColor="#FFFFFF"
+                        android:stateListAnimator="@null" />
                 </LinearLayout>
 
                 <EditText
@@ -394,9 +440,10 @@
                     android:gravity="top"
                     android:hint="在此编辑日记内容..."
                     android:textSize="14sp"
-                    android:textColor="#333333"
+                    android:textColor="@color/text_primary"
                     android:textColorHint="#999999"
-                    android:background="@drawable/edittext_gray_background"
+                    android:background="@drawable/bg_rounded_white_blue"
+                    android:elevation="2dp"
                     android:padding="12dp"
                     android:lineSpacingMultiplier="1.4" />
             </LinearLayout>
@@ -407,7 +454,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_rounded_white_blue"
                 android:elevation="2dp"
                 android:padding="16dp"
                 android:layout_marginBottom="16dp"
@@ -418,8 +465,8 @@
                     android:layout_height="wrap_content"
                     android:text="📷 今日图片"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
 
                 <LinearLayout
@@ -435,8 +482,8 @@
                     android:layout_height="wrap_content"
                     android:text="🎤 今日语音"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
 
                 <LinearLayout

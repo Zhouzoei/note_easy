@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="20dp"
+    android:background="@color/background_blue">
 
     <!-- 标题 -->
     <TextView
@@ -12,18 +13,20 @@
         android:layout_height="wrap_content"
         android:text="本月常用标签"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/text_primary"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="20dp" />
 
     <!-- 标签统计 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        android:gravity="center">
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/bg_rounded_white_blue"
+        android:elevation="2dp"
+        android:paddingVertical="20dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,27 +36,30 @@
             android:gravity="center">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="常用标签数"
                 android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="4dp" />
+                android:textColor="@color/text_primary"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/tvCommonTagsCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#9C27B0" />
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/primary_blue"
+                android:gravity="center" />
         </LinearLayout>
 
         <View
             android:layout_width="1dp"
-            android:layout_height="40dp"
-            android:background="#e0e0e0" />
+            android:layout_height="60dp"
+            android:background="#BBDEFB"
+            android:layout_gravity="center_vertical" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -63,86 +69,102 @@
             android:gravity="center">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="最常用"
                 android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="4dp" />
+                android:textColor="@color/text_primary"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/tvMostUsedTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="无"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#9C27B0"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/primary_blue"
                 android:maxLines="1"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:gravity="center" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 标签云标题和刷新按钮 -->
+    <!-- 标签云区域 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:gravity="center_vertical">
+        android:orientation="vertical"
+        android:background="@drawable/bg_rounded_white_blue"
+        android:elevation="2dp"
+        android:padding="16dp">
 
-        <TextView
-            android:layout_width="0dp"
+        <!-- 标签云标题和刷新按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="标签云"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical">
 
-        <Button
-            android:id="@+id/btnRefreshCloud"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="刷新"
-            android:textSize="12sp"
-            android:paddingHorizontal="12dp"
-            android:background="@drawable/bg_outline_button"
-            android:textColor="#9C27B0" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="标签云"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_primary" />
+
+            <Button
+                android:id="@+id/btnRefreshCloud"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="刷新"
+                android:textSize="12sp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:background="@drawable/bg_dashed_border_dark_blue"
+                android:textColor="@color/text_primary"
+                android:stateListAnimator="@null"
+                android:elevation="2dp" />
+        </LinearLayout>
+
+        <!-- 标签云容器 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:background="@android:color/transparent"
+            android:padding="4dp">
+
+            <!-- 自定义词云View -->
+            <com.example.finalwork.WordCloudView
+                android:id="@+id/wordCloudView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- 无标签提示 -->
+            <TextView
+                android:id="@+id/tvNoTags"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="本月暂无标签"
+                android:textSize="16sp"
+                android:textColor="@color/text_gray"
+                android:gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
     </LinearLayout>
-
-    <!-- 标签云容器 -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:background="#f8f9fa"
-        android:padding="4dp">
-
-        <!-- 自定义词云View -->
-        <com.example.finalwork.WordCloudView
-            android:id="@+id/wordCloudView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- 无标签提示 -->
-        <TextView
-            android:id="@+id/tvNoTags"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="本月暂无标签"
-            android:textSize="16sp"
-            android:textColor="#999999"
-            android:gravity="center"
-            android:visibility="gone" />
-
-    </FrameLayout>
 
     <!-- 底部按钮 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="20dp"
+        android:gravity="center">
 
         <Button
             android:id="@+id/btnClose"
@@ -150,8 +172,11 @@
             android:layout_height="48dp"
             android:text="关闭"
             android:textSize="16sp"
-            android:background="@drawable/bg_rounded_primary"
-            android:textColor="#FFFFFF" />
+            android:fontFamily="sans-serif-medium"
+            android:background="@drawable/bg_btn_primary_blue"
+            android:textColor="#FFFFFF"
+            android:stateListAnimator="@null"
+            android:elevation="4dp" />
 
     </LinearLayout>
 

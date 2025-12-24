@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f5f7fa">
+    android:background="@color/background_blue">
 
     <!-- 主要内容区域 -->
     <ScrollView
         android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
         android:paddingBottom="80dp"
         android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:minHeight="800dp">
+            android:orientation="vertical">
 
             <!-- 标题 -->
             <TextView
@@ -25,65 +27,101 @@
                 android:layout_height="wrap_content"
                 android:text="笔记统计"
                 android:textSize="24sp"
-                android:textStyle="bold"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/text_primary"
                 android:gravity="center"
-                android:textColor="#333333"
-                android:layout_marginBottom="24dp" />
+                android:letterSpacing="0.01"
+                android:layout_marginBottom="20dp" />
 
-            <!-- 本月概览 - 简化田字形布局 -->
+            <!-- 月份选择器 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="20dp">
+
+                <ImageView
+                    android:id="@+id/btnPreviousMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:textSize="25sp"
+                    android:src="@drawable/ic_circle_left"
+                    android:gravity="center"
+                    android:padding="0dp"
+                    android:stateListAnimator="@null"
+                    app:tint="#A0CFF4" />
+
+                <TextView
+                    android:id="@+id/tvHeatmapTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2023年11月"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary"
+                    android:gravity="center"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp" />
+
+                <ImageView
+                    android:id="@+id/btnNextMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_circle_right"
+                    android:gravity="center"
+                    android:padding="0dp"
+                    android:stateListAnimator="@null"
+                    app:tint="#A0CFF4"/>
+
+            </LinearLayout>
+
+            <!-- 田字格统计卡片 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_rounded_white"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp"
-                android:elevation="2dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="本月概述"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
-                    android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="20dp">
 
                 <!-- 第一行 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="20dp">
 
                     <!-- 月度记录 -->
                     <LinearLayout
                         android:id="@+id/monthlyRecordsLayout"
                         android:layout_width="0dp"
-                        android:layout_height="100dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:background="@drawable/bg_stat_card_blue"
+                        android:background="@drawable/bg_dashed_border_blue"
                         android:padding="16dp"
-                        android:layout_marginEnd="6dp"
-                        android:gravity="center">
+                        android:layout_marginRight="10dp"
+                        android:gravity="center"
+                        android:minHeight="120dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="月度记录"
-                            android:textSize="14sp"
-                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:alpha="0.9"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:id="@+id/tvMonthlyRecords"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="42"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF" />
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold" />
 
                     </LinearLayout>
 
@@ -91,30 +129,34 @@
                     <LinearLayout
                         android:id="@+id/totalPhotosLayout"
                         android:layout_width="0dp"
-                        android:layout_height="100dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:background="@drawable/bg_stat_card_green"
+                        android:background="@drawable/bg_dashed_border_blue"
                         android:padding="16dp"
-                        android:layout_marginStart="6dp"
-                        android:gravity="center">
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:minHeight="120dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="照片总数"
-                            android:textSize="14sp"
-                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:alpha="0.9"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:id="@+id/tvTotalPhotos"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="128"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF" />
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold" />
 
                     </LinearLayout>
 
@@ -130,30 +172,34 @@
                     <LinearLayout
                         android:id="@+id/primaryMoodLayout"
                         android:layout_width="0dp"
-                        android:layout_height="100dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:background="@drawable/bg_stat_card_orange"
+                        android:background="@drawable/bg_dashed_border_blue"
                         android:padding="16dp"
-                        android:layout_marginEnd="6dp"
-                        android:gravity="center">
+                        android:layout_marginRight="10dp"
+                        android:gravity="center"
+                        android:minHeight="120dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="主要心情"
-                            android:textSize="14sp"
-                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:alpha="0.9"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:id="@+id/tvPrimaryMood"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="无数据"
+                            android:text="平静"
                             android:textSize="18sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold"
-                            android:textColor="#FFFFFF"
                             android:maxLines="1"
                             android:ellipsize="end" />
 
@@ -163,45 +209,48 @@
                     <LinearLayout
                         android:id="@+id/commonTagsLayout"
                         android:layout_width="0dp"
-                        android:layout_height="100dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:background="@drawable/bg_stat_card_purple"
+                        android:background="@drawable/bg_dashed_border_blue"
                         android:padding="16dp"
-                        android:layout_marginStart="6dp"
-                        android:gravity="center">
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:minHeight="120dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="常用标签"
-                            android:textSize="14sp"
-                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:alpha="0.9"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:id="@+id/tvCommonTags"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="7"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF" />
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold" />
 
                     </LinearLayout>
 
                 </LinearLayout>
-
             </LinearLayout>
 
-            <!-- 心情日历 - 移到前面 -->
+            <!-- 心情日历 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_rounded_white"
-                android:padding="20dp"
-                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_rounded_white_blue"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
                 android:elevation="2dp">
 
                 <TextView
@@ -209,50 +258,9 @@
                     android:layout_height="wrap_content"
                     android:text="心情日历"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
-                    android:layout_marginBottom="16dp" />
-
-                <!-- 月份选择器 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginBottom="20dp">
-
-                    <Button
-                        android:id="@+id/btnPreviousMonth"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:text="◀"
-                        android:textSize="16sp"
-                        android:textColor="#333333"
-                        android:background="@drawable/bg_rounded_border"
-                        android:layout_marginEnd="16dp" />
-
-                    <TextView
-                        android:id="@+id/tvHeatmapTitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="2023年11月"
-                        android:textSize="16sp"
-                        android:textColor="#333333"
-                        android:textStyle="bold"
-                        android:gravity="center" />
-
-                    <Button
-                        android:id="@+id/btnNextMonth"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:text="▶"
-                        android:textSize="16sp"
-                        android:textColor="#333333"
-                        android:background="@drawable/bg_rounded_border"
-                        android:layout_marginStart="16dp" />
-
-                </LinearLayout>
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
 
                 <!-- 星期标题 -->
                 <LinearLayout
@@ -267,7 +275,7 @@
                         android:layout_weight="1"
                         android:text="日"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                     <TextView
@@ -276,7 +284,7 @@
                         android:layout_weight="1"
                         android:text="一"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                     <TextView
@@ -285,7 +293,7 @@
                         android:layout_weight="1"
                         android:text="二"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                     <TextView
@@ -294,7 +302,7 @@
                         android:layout_weight="1"
                         android:text="三"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                     <TextView
@@ -303,7 +311,7 @@
                         android:layout_weight="1"
                         android:text="四"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                     <TextView
@@ -312,7 +320,7 @@
                         android:layout_weight="1"
                         android:text="五"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                     <TextView
@@ -321,31 +329,31 @@
                         android:layout_weight="1"
                         android:text="六"
                         android:textSize="12sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_gray"
                         android:gravity="center" />
 
                 </LinearLayout>
 
-                <!-- 心情日历网格 - 使用LinearLayout代替GridView -->
+                <!-- 心情日历网格 -->
                 <LinearLayout
                     android:id="@+id/moodHeatmapContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="@android:color/transparent">
 
                     <!-- 这里动态添加心情日历行 -->
 
                 </LinearLayout>
 
-
             </LinearLayout>
 
-            <!-- 活动趋势图表 - 移到后面 -->
+            <!-- 活动趋势图表 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_rounded_white"
+                android:background="@drawable/bg_rounded_white_blue"
                 android:padding="16dp"
                 android:layout_marginBottom="16dp"
                 android:elevation="2dp">
@@ -355,18 +363,18 @@
                     android:layout_height="wrap_content"
                     android:text="活动趋势"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#333333"
-                    android:layout_marginBottom="16dp" />
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
 
                 <LinearLayout
                     android:id="@+id/activityChartContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="180dp"
+                    android:layout_height="120dp"
                     android:orientation="horizontal"
                     android:gravity="bottom"
-                    android:padding="12dp"
-                    android:background="@drawable/bg_rounded_border">
+                    android:padding="4dp"
+                    android:background="@android:color/transparent">
 
                     <!-- 这里动态添加柱状图 -->
 
@@ -378,7 +386,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center"
-                    android:layout_marginTop="12dp">
+                    android:layout_marginTop="20dp"
+                    android:background="@android:color/transparent">
 
                     <!-- 这里动态添加月份标签 -->
 

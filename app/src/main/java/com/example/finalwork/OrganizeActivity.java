@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -18,6 +21,8 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -289,10 +294,11 @@ public class OrganizeActivity extends BaseActivity {
 
     private void switchToFragmentsTab() {
         // 更新Tab样式
-        tabFragments.setTextColor(Color.parseColor("#2196F3"));
-        tabFragments.setBackgroundResource(R.drawable.tab_selected_bg);
-        tabDiary.setTextColor(Color.parseColor("#666666"));
-        tabDiary.setBackgroundResource(R.drawable.tab_normal_bg);
+        tabFragments.setTextColor(getResources().getColor(R.color.primary_blue));
+        tabFragments.setBackgroundResource(R.drawable.bg_tab_white_rounded);
+
+        tabDiary.setTextColor(getResources().getColor(R.color.text_gray));
+        tabDiary.setBackgroundColor(Color.TRANSPARENT);
 
         // 切换内容
         fragmentsScroll.setVisibility(View.VISIBLE);
@@ -301,10 +307,11 @@ public class OrganizeActivity extends BaseActivity {
 
     private void switchToDiaryTab() {
         // 更新Tab样式
-        tabDiary.setTextColor(Color.parseColor("#2196F3"));
-        tabDiary.setBackgroundResource(R.drawable.tab_selected_bg);
-        tabFragments.setTextColor(Color.parseColor("#666666"));
-        tabFragments.setBackgroundResource(R.drawable.tab_normal_bg);
+        tabDiary.setTextColor(getResources().getColor(R.color.primary_blue));
+        tabDiary.setBackgroundResource(R.drawable.bg_tab_white_rounded);
+
+        tabFragments.setTextColor(getResources().getColor(R.color.text_gray));
+        tabFragments.setBackgroundColor(Color.TRANSPARENT);
 
         // 切换内容
         fragmentsScroll.setVisibility(View.GONE);
@@ -800,11 +807,26 @@ public class OrganizeActivity extends BaseActivity {
         LinearLayout noteLayout = new LinearLayout(this);
         noteLayout.setOrientation(LinearLayout.VERTICAL);
         noteLayout.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
-        noteLayout.setBackgroundResource(R.drawable.bg_rounded_border);
+        noteLayout.setBackgroundResource(R.drawable.bg_rounded_white_blue);
         noteLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
+
+        // 设置边距，让阴影有显示空间（重要！）
+        noteLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ) {{
+            setMargins(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(16));
+        }});
+
+        // 添加 elevation 阴影效果（2dp）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            noteLayout.setElevation(dpToPx(2));  // 2dp 的阴影
+            noteLayout.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+            noteLayout.setClipToOutline(false);
+        }
 
         // === 1. 创建顶部行（选择框 + 时间 + 心情 + 标签） ===
         LinearLayout topRow = new LinearLayout(this);
@@ -837,7 +859,7 @@ public class OrganizeActivity extends BaseActivity {
         TextView timeText = new TextView(this);
         timeText.setText(note.getTime());
         timeText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        timeText.setTextColor(Color.parseColor("#666666"));
+        timeText.setTextColor(Color.parseColor("#546E7A"));
         LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -852,17 +874,25 @@ public class OrganizeActivity extends BaseActivity {
         // 添加心情（如果有）
         if (note.getMood() != null && !note.getMood().isEmpty()) {
             TextView moodView = new TextView(this);
-            moodView.setText(" " + note.getMood());
-            moodView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
-            moodView.setTextColor(Color.WHITE);
-            moodView.setBackgroundColor(Color.parseColor("#FF6B9C"));
-            moodView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+            moodView.setText(note.getMood());
+            moodView.setTextSize(11);  // 改为和记录界面一样
+            moodView.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            moodView.setBackgroundResource(R.drawable.bg_dashed_border_blue);
+            moodView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));  // 改为和记录界面一样
             moodView.setGravity(Gravity.CENTER);
+            moodView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            // 添加阴影效果
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                moodView.setElevation(2f);
+            }
+
             LinearLayout.LayoutParams moodParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            moodParams.setMargins(dpToPx(4), 0, 0, 0);
+            moodParams.setMargins(dpToPx(6), 0, 0, 0);  // 改为和记录界面一样
+            // 删除复杂的gravity设置，只保留默认
             moodView.setLayoutParams(moodParams);
             topRow.addView(moodView);
         }
@@ -870,17 +900,24 @@ public class OrganizeActivity extends BaseActivity {
         // 添加标签（如果有）
         if (note.getTag() != null && !note.getTag().isEmpty()) {
             TextView tagView = new TextView(this);
-            tagView.setText(" " + note.getTag());
-            tagView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
-            tagView.setTextColor(Color.WHITE);
-            tagView.setBackgroundColor(Color.parseColor("#4CAF50"));
-            tagView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+            tagView.setText(note.getTag());
+            tagView.setTextSize(11);  // 改为和记录界面一样
+            tagView.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            tagView.setBackgroundResource(R.drawable.bg_rec_gradient_blue);
+            tagView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));  // 改为和记录界面一样
             tagView.setGravity(Gravity.CENTER);
+            tagView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            // 添加阴影效果
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                tagView.setElevation(2f);
+            }
+
             LinearLayout.LayoutParams tagParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            tagParams.setMargins(dpToPx(4), 0, 0, 0);
+            tagParams.setMargins(dpToPx(6), 0, 0, 0);  // 改为和记录界面一样
             tagView.setLayoutParams(tagParams);
             topRow.addView(tagView);
         }
@@ -893,7 +930,7 @@ public class OrganizeActivity extends BaseActivity {
             TextView contentText = new TextView(this);
             contentText.setText(note.getContent());
             contentText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-            contentText.setTextColor(Color.parseColor("#333333"));
+            contentText.setTextColor(Color.parseColor("#0D3B66"));
             contentText.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -1105,23 +1142,34 @@ public class OrganizeActivity extends BaseActivity {
         resetTabStyles();
         selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
 
-        TextView iconText = (TextView) selectedTab.getChildAt(0);
-        TextView labelText = (TextView) selectedTab.getChildAt(1);
-
-        iconText.setTextColor(Color.parseColor("#2196F3"));
-        labelText.setTextColor(Color.parseColor("#2196F3"));
+        // 根据新的XML结构，直接修改ImageView的颜色
+        if (selectedTab.getChildCount() > 0) {
+            View child = selectedTab.getChildAt(0);
+            if (child instanceof ImageView) {
+                ImageView imageView = (ImageView) child;
+                // 选中状态：深蓝色
+                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+        }
     }
 
     private void resetTabStyles() {
         int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
+
         for (int id : navIds) {
             LinearLayout tab = findViewById(id);
             if (tab != null) {
                 tab.setBackgroundColor(Color.TRANSPARENT);
-                TextView iconText = (TextView) tab.getChildAt(0);
-                TextView labelText = (TextView) tab.getChildAt(1);
-                if (iconText != null) iconText.setTextColor(Color.BLACK);
-                if (labelText != null) labelText.setTextColor(Color.BLACK);
+
+                // 重置图标颜色为未选中状态
+                if (tab.getChildCount() > 0) {
+                    View child = tab.getChildAt(0);
+                    if (child instanceof ImageView) {
+                        ImageView imageView = (ImageView) child;
+                        // 未选中状态：浅蓝色
+                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
+                    }
+                }
             }
         }
     }

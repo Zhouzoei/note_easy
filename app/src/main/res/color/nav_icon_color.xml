@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="#2196F3" android:state_selected="true" /> <!-- 选中：深蓝色 -->
+    <item android:color="#2196F3" android:state_pressed="true" /> <!-- 按下：深蓝色 -->
+    <item android:color="#90CAF9" /> <!-- 默认：浅蓝色 -->
+</selector>

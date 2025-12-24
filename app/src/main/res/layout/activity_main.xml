@@ -2,14 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/background_blue">
 
     <!-- 主要内容区域（可滚动） -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="24dp"
-        android:layout_above="@+id/bottom_navigation">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        android:layout_above="@+id/bottom_navigation"
+        android:fillViewport="true"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -17,23 +21,17 @@
             android:orientation="vertical">
 
             <!-- 标题 -->
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="40dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="3dp"
-                    android:text="个人主页"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
+                android:text="个人主页"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/text_primary"
+                android:letterSpacing="0.01"
+                android:gravity="center"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="10dp" />
 
             <!-- 头像区域 -->
             <LinearLayout
@@ -47,16 +45,19 @@
                     android:id="@+id/ivAvatar"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
-                    android:background="@drawable/black_border"
+                    android:background="@drawable/bg_circle_gradient_blue"
                     android:scaleType="centerCrop"
-                    android:src="@android:drawable/ic_menu_gallery" />
+                    android:src="@android:drawable/ic_menu_gallery"
+                    android:contentDescription="用户头像"
+                    android:elevation="4dp"
+                    android:padding="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="点击修改头像"
                     android:textSize="12sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/text_gray"
                     android:layout_marginTop="8dp" />
 
             </LinearLayout>
@@ -73,34 +74,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_rounded_white_blue"
+                    android:elevation="2dp"
+                    android:padding="16dp">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="8dp"
-                        android:background="@drawable/black_border">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="用户名"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:padding="8dp"
-                            android:background="@android:color/white" />
-
-                    </LinearLayout>
+                        android:text="用户名"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_gray"
+                        android:layout_marginBottom="8dp" />
 
                     <TextView
                         android:id="@+id/tvUsername"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_gray_background"
-                        android:padding="12dp"
-                        android:textSize="14sp"
-                        android:text="未设置" />
+                        android:text="未设置"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:padding="4dp" />
 
                 </LinearLayout>
 
@@ -109,34 +104,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginBottom="16dp">
+                    android:background="@drawable/bg_rounded_white_blue"
+                    android:elevation="2dp"
+                    android:padding="16dp">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="8dp"
-                        android:background="@drawable/black_border">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="生日"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:padding="8dp"
-                            android:background="@android:color/white" />
-
-                    </LinearLayout>
+                        android:text="生日"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_gray"
+                        android:layout_marginBottom="8dp" />
 
                     <TextView
                         android:id="@+id/tvBirthday"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/edittext_gray_background"
-                        android:padding="12dp"
-                        android:textSize="14sp"
-                        android:text="未设置" />
+                        android:text="未设置"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:padding="4dp" />
 
                 </LinearLayout>
 
@@ -146,31 +134,34 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
 
                 <!-- 设置按钮 -->
                 <Button
                     android:id="@+id/btnSettings"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:text="设置"
-                    android:textStyle="bold"
                     android:textSize="16sp"
-                    android:background="@drawable/button_black_border"
-                    android:textColor="@android:color/black"
+                    android:fontFamily="sans-serif-medium"
+                    android:background="@drawable/bg_btn_primary_blue"
+                    android:textColor="#FFFFFF"
+                    android:stateListAnimator="@null"
                     android:layout_marginBottom="12dp"
-                    android:padding="12dp" />
+                    android:elevation="4dp" />
 
                 <!-- 退出登录按钮 -->
                 <Button
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:text="退出登录"
                     android:textSize="16sp"
-                    android:background="@drawable/button_black_border"
-                    android:textColor="@android:color/black"
-                    android:padding="12dp" />
+                    android:fontFamily="sans-serif-medium"
+                    android:background="@drawable/bg_dashed_border_dark_blue"
+                    android:textColor="@color/text_primary"
+                    android:stateListAnimator="@null" />
 
             </LinearLayout>
 

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -66,9 +67,9 @@ public class FirstActivity extends BaseActivity {
     private LinearLayout timelineContainer;
     private LinearLayout imagePreviewLayout;
     private LinearLayout photoLayout, voiceLayout, moodLayout, tagLayout;
-    private ImageView imagePreview;
+    private ImageView imagePreview,ivMoodIcon, ivTagIcon;
     private Button removeImageButton;
-    private TextView moodText, tagText, emptyStateText, todayRecordsTitle;
+    private TextView tvMoodText, tvTagText, emptyStateText, todayRecordsTitle;
 
     // 语音预览相关
     private LinearLayout voicePreviewLayout;
@@ -132,8 +133,10 @@ public class FirstActivity extends BaseActivity {
         voiceLayout = findViewById(R.id.voiceLayout);
         moodLayout = findViewById(R.id.moodLayout);
         tagLayout = findViewById(R.id.tagLayout);
-        moodText = findViewById(R.id.moodText);
-        tagText = findViewById(R.id.tagText);
+        ivMoodIcon = findViewById(R.id.ivMoodIcon);
+        tvMoodText = findViewById(R.id.tvMoodText);
+        ivTagIcon = findViewById(R.id.ivTagIcon);
+        tvTagText = findViewById(R.id.tvTagText);
         emptyStateText = findViewById(R.id.emptyStateText);
         todayRecordsTitle = findViewById(R.id.todayRecordsTitle);
 
@@ -240,6 +243,7 @@ public class FirstActivity extends BaseActivity {
         });
 
         dialog.show();
+
     }
 
     private void showVoiceAddedToast(long duration) {
@@ -584,43 +588,53 @@ public class FirstActivity extends BaseActivity {
     }
 
     private View YOUR_API_KEY_HERE(Note note, int position) {
-        LinearLayout container = new LinearLayout(this);
-        container.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout shadowContainer = new LinearLayout(this);
+        shadowContainer.setOrientation(LinearLayout.VERTICAL);
+
         LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        containerParams.setMargins(0, 0, 0, dpToPx(16));
-        container.setLayoutParams(containerParams);
+
+        containerParams.setMargins(dpToPx(20), 0, dpToPx(20), dpToPx(16));
+        shadowContainer.setLayoutParams(containerParams);
+        shadowContainer.setBackgroundResource(R.drawable.bg_rounded_white_blue);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            shadowContainer.setElevation(2f);
+        }
 
         LinearLayout noteContentLayout = createNoteLayoutWithDelete(note, position);
-        container.addView(noteContentLayout);
+        shadowContainer.addView(noteContentLayout);
 
-        return container;
+        return shadowContainer;
     }
 
     private LinearLayout createNoteLayoutWithDelete(Note note, int position) {
         LinearLayout noteLayout = new LinearLayout(this);
         noteLayout.setOrientation(LinearLayout.VERTICAL);
-        noteLayout.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
-        noteLayout.setBackgroundResource(R.drawable.bg_rounded_border);
-        noteLayout.setLayoutParams(new LinearLayout.LayoutParams(
+        noteLayout.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16));
+
+        LinearLayout.LayoutParams noteLayoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
+        );
+
+        noteLayout.setLayoutParams(noteLayoutParams);
 
         LinearLayout topRow = new LinearLayout(this);
         topRow.setOrientation(LinearLayout.HORIZONTAL);
-        topRow.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams topRowParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
+        );
+        topRow.setLayoutParams(topRowParams);
         topRow.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView timeText = new TextView(this);
         timeText.setText(note.getTime());
-        timeText.setTextSize(12);
-        timeText.setTextColor(Color.parseColor("#666666"));
+        timeText.setTextSize(13);
+        timeText.setTextColor(ContextCompat.getColor(this, R.color.text_gray));
         LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -631,45 +645,56 @@ public class FirstActivity extends BaseActivity {
 
         if (note.getMood() != null && !note.getMood().isEmpty()) {
             TextView moodView = new TextView(this);
-            moodView.setText(" " + note.getMood());
-            moodView.setTextSize(10);
-            moodView.setTextColor(Color.WHITE);
-            moodView.setBackgroundColor(Color.parseColor("#FF6B9C"));
-            moodView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+            moodView.setText(note.getMood());
+            moodView.setTextSize(11);
+            moodView.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            moodView.setBackgroundResource(R.drawable.bg_dashed_border_blue);
+            moodView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
             moodView.setGravity(Gravity.CENTER);
+            moodView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                moodView.setElevation(2f);
+            }
+
             LinearLayout.LayoutParams moodParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            moodParams.setMargins(dpToPx(4), 0, 0, 0);
+            moodParams.setMargins(dpToPx(6), 0, 0, 0);
             moodView.setLayoutParams(moodParams);
             topRow.addView(moodView);
         }
 
         if (note.getTag() != null && !note.getTag().isEmpty()) {
             TextView tagView = new TextView(this);
-            tagView.setText(" " + note.getTag());
-            tagView.setTextSize(10);
-            tagView.setTextColor(Color.WHITE);
-            tagView.setBackgroundColor(Color.parseColor("#4CAF50"));
-            tagView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+            tagView.setText(note.getTag());
+            tagView.setTextSize(11);
+            tagView.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            tagView.setBackgroundResource(R.drawable.bg_rec_gradient_blue);
+            tagView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
             tagView.setGravity(Gravity.CENTER);
+            tagView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                tagView.setElevation(2f);
+            }
             LinearLayout.LayoutParams tagParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            tagParams.setMargins(dpToPx(4), 0, 0, 0);
+            tagParams.setMargins(dpToPx(6), 0, 0, 0);
             tagView.setLayoutParams(tagParams);
             topRow.addView(tagView);
         }
 
         ImageButton deleteButton = new ImageButton(this);
-        deleteButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+        deleteButton.setImageResource(R.drawable.ic_close_blue);
         deleteButton.setBackgroundColor(Color.TRANSPARENT);
-        deleteButton.setPadding(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
+        deleteButton.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
         LinearLayout.LayoutParams deleteParams = new LinearLayout.LayoutParams(
-                dpToPx(24),
-                dpToPx(24)
+                dpToPx(32),
+                dpToPx(32)
         );
         deleteParams.setMargins(dpToPx(8), 0, 0, 0);
         deleteButton.setLayoutParams(deleteParams);
@@ -688,18 +713,19 @@ public class FirstActivity extends BaseActivity {
         if (note.getContent() != null && !note.getContent().isEmpty()) {
             TextView contentText = new TextView(this);
             contentText.setText(note.getContent());
-            contentText.setTextSize(14);
+            contentText.setTextSize(15);
+            contentText.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            contentText.setLineSpacing(0, 1.2f);
             contentText.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             ));
             LinearLayout.LayoutParams contentParams = (LinearLayout.LayoutParams) contentText.getLayoutParams();
-            contentParams.setMargins(0, dpToPx(8), 0, 0);
+            contentParams.setMargins(0, dpToPx(12), 0, 0);
             contentText.setLayoutParams(contentParams);
             noteLayout.addView(contentText);
         }
 
-        // 显示语音
         if (note.hasVoice() && note.getVoicePath() != null) {
             LinearLayout voiceLayout = createVoiceView(note);
             LinearLayout.LayoutParams voiceParams = new LinearLayout.LayoutParams(
@@ -718,7 +744,12 @@ public class FirstActivity extends BaseActivity {
                     dpToPx(120)
             ));
             photoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            photoView.setBackgroundResource(R.drawable.bg_dashed_border);
+            photoView.setBackgroundResource(R.drawable.bg_rounded_white_blue);
+            photoView.setPadding(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                photoView.setElevation(2f);
+            }
 
             Bitmap bitmap = loadImageFromStorage(note.getImagePath());
             if (bitmap != null) {
@@ -748,7 +779,11 @@ public class FirstActivity extends BaseActivity {
     private LinearLayout createVoiceView(Note note) {
         LinearLayout voiceLayout = new LinearLayout(this);
         voiceLayout.setOrientation(LinearLayout.HORIZONTAL);
-        voiceLayout.setBackgroundResource(R.drawable.bg_voice_border);
+        voiceLayout.setBackgroundResource(R.drawable.bg_rounded_white_blue);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            voiceLayout.setElevation(2f);
+        }
+
         voiceLayout.setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
         voiceLayout.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -992,8 +1027,16 @@ public class FirstActivity extends BaseActivity {
         audioDuration = 0;
         selectedImageUri = null;
         selectedImageBitmap = null;
-        moodText.setText("心情");
-        tagText.setText("标签");
+
+        // 重置心情按钮：显示图标，隐藏文字
+        ivMoodIcon.setVisibility(View.VISIBLE);
+        tvMoodText.setVisibility(View.GONE);
+        tvMoodText.setText("");
+
+        // 重置标签按钮：显示图标，隐藏文字
+        ivTagIcon.setVisibility(View.VISIBLE);
+        tvTagText.setVisibility(View.GONE);
+        tvTagText.setText("");
     }
 
     private void showMoodSelection() {
@@ -1005,7 +1048,10 @@ public class FirstActivity extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 selectedMood = moods[which];
-                moodText.setText(selectedMood);
+
+                ivMoodIcon.setVisibility(View.GONE);
+                tvMoodText.setText(selectedMood);
+                tvMoodText.setVisibility(View.VISIBLE);
             }
         });
         builder.show();
@@ -1020,7 +1066,10 @@ public class FirstActivity extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 selectedTag = tags[which];
-                tagText.setText(selectedTag);
+
+                ivTagIcon.setVisibility(View.GONE);
+                tvTagText.setText(selectedTag);
+                tvTagText.setVisibility(View.VISIBLE);
             }
         });
         builder.show();
@@ -1036,49 +1085,50 @@ public class FirstActivity extends BaseActivity {
         LinearLayout navStats = findViewById(R.id.nav_stats);
         LinearLayout navProfile = findViewById(R.id.nav_profile);
 
+        // 设置初始选中状态
         setSelectedTab(navRecord);
 
-        navRecord.setOnClickListener(v -> setSelectedTab(navRecord));
+        // 记录页点击 - 已经在当前页，无需跳转
+        navRecord.setOnClickListener(v -> {
+            // 如果已经在FirstActivity，只需更新选中状态
+            setSelectedTab(navRecord);
+        });
 
+        // 整理页点击
         navOrganize.setOnClickListener(v -> {
+            setSelectedTab(navOrganize);
             Intent organizeIntent = new Intent(FirstActivity.this, OrganizeActivity.class);
             startActivity(organizeIntent);
         });
 
+        // 统计页点击
         navStats.setOnClickListener(v -> {
+            setSelectedTab(navStats);
             Intent statsIntent = new Intent(FirstActivity.this, StatisticsActivity.class);
             startActivity(statsIntent);
         });
 
+        // 个人页点击
         navProfile.setOnClickListener(v -> {
+            setSelectedTab(navProfile);
             Intent profileIntent = new Intent(FirstActivity.this, MainActivity.class);
             startActivity(profileIntent);
         });
     }
 
+    // 在setupBottomNavigation()方法后面添加/修改以下方法：
+
     private void setSelectedTab(LinearLayout selectedTab) {
         resetTabStyles();
         selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
 
+        // 新的单层结构：只有一个ImageView作为子View
         if (selectedTab.getChildCount() > 0) {
-            View firstChild = selectedTab.getChildAt(0);
-            if (firstChild instanceof LinearLayout) {
-                LinearLayout innerLayout = (LinearLayout) firstChild;
-                if (innerLayout.getChildCount() >= 2) {
-                    TextView iconText = (TextView) innerLayout.getChildAt(0);
-                    TextView labelText = (TextView) innerLayout.getChildAt(1);
-
-                    iconText.setTextColor(Color.parseColor("#2196F3"));
-                    labelText.setTextColor(Color.parseColor("#2196F3"));
-                }
-            } else {
-                if (selectedTab.getChildCount() >= 2) {
-                    TextView iconText = (TextView) selectedTab.getChildAt(0);
-                    TextView labelText = (TextView) selectedTab.getChildAt(1);
-
-                    iconText.setTextColor(Color.parseColor("#2196F3"));
-                    labelText.setTextColor(Color.parseColor("#2196F3"));
-                }
+            View child = selectedTab.getChildAt(0);
+            if (child instanceof ImageView) {
+                ImageView imageView = (ImageView) child;
+                // 设置选中状态的图标颜色（深蓝色）
+                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
             }
         }
     }
@@ -1091,25 +1141,12 @@ public class FirstActivity extends BaseActivity {
             if (tab != null) {
                 tab.setBackgroundColor(Color.TRANSPARENT);
 
+                // 重置图标颜色为未选中状态（浅蓝色）
                 if (tab.getChildCount() > 0) {
-                    View firstChild = tab.getChildAt(0);
-                    if (firstChild instanceof LinearLayout) {
-                        LinearLayout innerLayout = (LinearLayout) firstChild;
-                        if (innerLayout.getChildCount() >= 2) {
-                            TextView iconText = (TextView) innerLayout.getChildAt(0);
-                            TextView labelText = (TextView) innerLayout.getChildAt(1);
-
-                            if (iconText != null) iconText.setTextColor(Color.BLACK);
-                            if (labelText != null) labelText.setTextColor(Color.BLACK);
-                        }
-                    } else {
-                        if (tab.getChildCount() >= 2) {
-                            TextView iconText = (TextView) tab.getChildAt(0);
-                            TextView labelText = (TextView) tab.getChildAt(1);
-
-                            if (iconText != null) iconText.setTextColor(Color.BLACK);
-                            if (labelText != null) labelText.setTextColor(Color.BLACK);
-                        }
+                    View child = tab.getChildAt(0);
+                    if (child instanceof ImageView) {
+                        ImageView imageView = (ImageView) child;
+                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
                     }
                 }
             }

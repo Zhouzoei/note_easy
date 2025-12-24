@@ -303,28 +303,13 @@ public class MainActivity extends BaseActivity {
         resetTabStyles();
         selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
 
-        // 安全地获取子View
+        // 根据新的XML结构，直接修改ImageView的颜色
         if (selectedTab.getChildCount() > 0) {
-            View firstChild = selectedTab.getChildAt(0);
-            if (firstChild instanceof LinearLayout) {
-                // 如果是嵌套的LinearLayout
-                LinearLayout innerLayout = (LinearLayout) firstChild;
-                if (innerLayout.getChildCount() >= 2) {
-                    TextView iconText = (TextView) innerLayout.getChildAt(0);
-                    TextView labelText = (TextView) innerLayout.getChildAt(1);
-
-                    if (iconText != null) iconText.setTextColor(Color.parseColor("#2196F3"));
-                    if (labelText != null) labelText.setTextColor(Color.parseColor("#2196F3"));
-                }
-            } else {
-                // 如果是直接包含两个TextView
-                if (selectedTab.getChildCount() >= 2) {
-                    TextView iconText = (TextView) selectedTab.getChildAt(0);
-                    TextView labelText = (TextView) selectedTab.getChildAt(1);
-
-                    if (iconText != null) iconText.setTextColor(Color.parseColor("#2196F3"));
-                    if (labelText != null) labelText.setTextColor(Color.parseColor("#2196F3"));
-                }
+            View child = selectedTab.getChildAt(0);
+            if (child instanceof ImageView) {
+                ImageView imageView = (ImageView) child;
+                // 选中状态：深蓝色
+                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
             }
         }
     }
@@ -337,27 +322,13 @@ public class MainActivity extends BaseActivity {
             if (tab != null) {
                 tab.setBackgroundColor(Color.TRANSPARENT);
 
+                // 重置图标颜色为未选中状态
                 if (tab.getChildCount() > 0) {
-                    View firstChild = tab.getChildAt(0);
-                    if (firstChild instanceof LinearLayout) {
-                        // 嵌套布局的情况
-                        LinearLayout innerLayout = (LinearLayout) firstChild;
-                        if (innerLayout.getChildCount() >= 2) {
-                            TextView iconText = (TextView) innerLayout.getChildAt(0);
-                            TextView labelText = (TextView) innerLayout.getChildAt(1);
-
-                            if (iconText != null) iconText.setTextColor(Color.BLACK);
-                            if (labelText != null) labelText.setTextColor(Color.BLACK);
-                        }
-                    } else {
-                        // 直接包含的情况
-                        if (tab.getChildCount() >= 2) {
-                            TextView iconText = (TextView) tab.getChildAt(0);
-                            TextView labelText = (TextView) tab.getChildAt(1);
-
-                            if (iconText != null) iconText.setTextColor(Color.BLACK);
-                            if (labelText != null) labelText.setTextColor(Color.BLACK);
-                        }
+                    View child = tab.getChildAt(0);
+                    if (child instanceof ImageView) {
+                        ImageView imageView = (ImageView) child;
+                        // 未选中状态：浅蓝色
+                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
                     }
                 }
             }
