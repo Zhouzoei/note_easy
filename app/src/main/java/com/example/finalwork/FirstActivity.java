@@ -20,11 +20,14 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -89,6 +92,12 @@ public class FirstActivity extends BaseActivity {
     private List<Note> todayNotesList = new ArrayList<>();
     private Gson gson = new Gson();
     private Button statisticsButton;
+    private Spinner spinnerMood, spinnerTag, spinnerType;
+    private LinearLayout listLayout;
+    // ... 其他变量
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +148,7 @@ public class FirstActivity extends BaseActivity {
         tvTagText = findViewById(R.id.tvTagText);
         emptyStateText = findViewById(R.id.emptyStateText);
         todayRecordsTitle = findViewById(R.id.todayRecordsTitle);
+        listLayout = findViewById(R.id.listLayout); // 新增这一行，绑定新的布局容器
 
         // 初始化语音预览组件
         voicePreviewLayout = findViewById(R.id.voicePreviewLayout);
@@ -148,10 +158,48 @@ public class FirstActivity extends BaseActivity {
         removeVoiceButton = findViewById(R.id.removeVoiceButton);
 
         updateTitleWithDate();
+        // 1. 初始化 Spinner 控件
+        spinnerType = findViewById(R.id.spinnerType);
+        spinnerMood = findViewById(R.id.spinnerMood);
+        spinnerTag = findViewById(R.id.spinnerTag);
+
+        // 2. 设置心情选项
+        String[] moods = {"心情", "开心", "平静", "兴奋", "思考", "疲惫", "其他"};
+        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, moods);
+        moodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMood.setAdapter(moodAdapter);
+
+        // 3. 设置标签选项
+        String[] tags = {"标签", "工作", "生活", "学习", "娱乐", "健康", "其他"};
+        ArrayAdapter<String> tagAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tags);
+        tagAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerTag.setAdapter(tagAdapter);
+
+        // 4. 设置类型选项 (移到了上面，确保在使用前已初始化)
+        String[] types = {"类型", "图片", "录音"};
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, types);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerType.setAdapter(typeAdapter);
+
+        // 5. 统一设置监听器
+        AdapterView.OnItemSelectedListener filterListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                refreshNotesDisplay();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        };
+
+        spinnerMood.setOnItemSelectedListener(filterListener);
+        spinnerTag.setOnItemSelectedListener(filterListener);
+        spinnerType.setOnItemSelectedListener(filterListener); // 确保也加上这个
+
     }
 
     private void updateTitleWithDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM月dd日", Locale.getDefault());
         String currentDate = dateFormat.format(new Date());
         todayRecordsTitle.setText("今日记录 - " + currentDate);
     }
@@ -565,15 +613,44 @@ public class FirstActivity extends BaseActivity {
     private void refreshNotesDisplay() {
         timelineContainer.removeAllViews();
 
-        if (todayNotesList.isEmpty()) {
-            emptyStateText.setVisibility(View.VISIBLE);
-            timelineContainer.setVisibility(View.GONE);
-        } else {
-            emptyStateText.setVisibility(View.GONE);
-            timelineContainer.setVisibility(View.VISIBLE);
+        // 获取当前选中的筛选条件
+        String selectedMood = (String) spinnerMood.getSelectedItem();
+        String selectedTag = (String) spinnerTag.getSelectedItem();
+        String selectedType = (String) spinnerType.getSelectedItem();
 
-            for (int i = 0; i < todayNotesList.size(); i++) {
-                Note note = todayNotesList.get(i);
+        // 临时列表，用来存放符合当前筛选条件的笔记
+        List<Note> displayList = new ArrayList<>();
+
+        for (Note note : todayNotesList) {
+            boolean moodMatch = "心情".equals(selectedMood) ||
+                    (note.getMood() != null && note.getMood().equals(selectedMood));
+
+            boolean tagMatch = "标签".equals(selectedTag) ||
+                    (note.getTag() != null && note.getTag().equals(selectedTag));
+
+            boolean typeMatch = true; // 默认匹配（"全部"）
+            if ("图片".equals(selectedType)) {
+                typeMatch = note.hasPhoto();
+            } else if ("录音".equals(selectedType)) {
+                typeMatch = note.hasVoice();
+            }
+
+            if (moodMatch && tagMatch && typeMatch) {
+                displayList.add(note);
+            }
+        }
+
+        if (displayList.isEmpty()) {
+            // 如果没有符合条件的笔记
+            emptyStateText.setVisibility(View.VISIBLE); // 显示"没有记录"提示
+            timelineContainer.setVisibility(View.GONE);  // 隐藏列表容器
+        } else {
+            // 如果有笔记
+            emptyStateText.setVisibility(View.GONE);     // 隐藏"没有记录"提示
+            timelineContainer.setVisibility(View.VISIBLE);// 显示列表容器
+
+            for (int i = 0; i < displayList.size(); i++) {
+                Note note = displayList.get(i);
                 View noteView = YOUR_API_KEY_HERE(note, i);
                 timelineContainer.addView(noteView);
             }
@@ -581,6 +658,7 @@ public class FirstActivity extends BaseActivity {
 
         showNotesStatistics();
     }
+
 
     private void showNotesStatistics() {
         int totalNotes = notesList.size();
