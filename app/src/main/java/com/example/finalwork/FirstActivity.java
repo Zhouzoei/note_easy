@@ -688,7 +688,7 @@ public class FirstActivity extends BaseActivity {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
 
-        containerParams.setMargins(dpToPx(20), 0, dpToPx(20), dpToPx(16));
+        containerParams.setMargins(dpToPx(2), 0, dpToPx(2), dpToPx(16));
         shadowContainer.setLayoutParams(containerParams);
         shadowContainer.setBackgroundResource(R.drawable.bg_rounded_white_blue);
 
@@ -705,7 +705,7 @@ public class FirstActivity extends BaseActivity {
     private LinearLayout createNoteLayoutWithDelete(Note note, int position) {
         LinearLayout noteLayout = new LinearLayout(this);
         noteLayout.setOrientation(LinearLayout.VERTICAL);
-        noteLayout.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16));
+        noteLayout.setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12));
 
         LinearLayout.LayoutParams noteLayoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

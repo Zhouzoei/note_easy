@@ -831,7 +831,7 @@ public class OrganizeActivity extends BaseActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        containerParams.setMargins(0, 0, 0, dpToPx(16));
+        containerParams.setMargins(0, 0, 0, dpToPx(1));
         container.setLayoutParams(containerParams);
 
         // 直接调用修改后的 createNoteLayout 方法
