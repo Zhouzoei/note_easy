@@ -44,7 +44,6 @@ import java.util.Map;
 public class OrganizeActivity extends BaseActivity {
     private static final String DIARY_CACHE_FILE = "today_diary_cache.json";
     private static final String DIARY_DATE_KEY = "diary_date";
-    private static final String NOTES_FILE = "notes.json";
     // 风格选择相关
     private RadioGroup styleRadioGroup;
     private AIProcessor.DiaryStyle selectedStyle = AIProcessor.DiaryStyle.SIMPLE;
@@ -92,6 +91,14 @@ public class OrganizeActivity extends BaseActivity {
     private LinearLayout styleHeaderLayout;
     private ImageView ivStyleExpandArrow;
     private TextView tvCurrentStyle;
+    private String getNotesFileName() {
+        UserManager userManager = new UserManager(this);
+        String currentUser = userManager.getCurrentUser();
+        if (currentUser == null) {
+            currentUser = "guest";
+        }
+        return "notes_" + currentUser + ".json";
+    }
 
     private DiaryManager diaryManager;
     @Override
@@ -1123,7 +1130,7 @@ public class OrganizeActivity extends BaseActivity {
 
     private void loadNotesFromFile() {
         try {
-            FileInputStream fis = openFileInput(NOTES_FILE);
+            FileInputStream fis = openFileInput(getNotesFileName());
             byte[] buffer = new byte[fis.available()];
             fis.read(buffer);
             fis.close();

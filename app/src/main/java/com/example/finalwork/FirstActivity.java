@@ -65,7 +65,6 @@ public class FirstActivity extends BaseActivity {
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 4;
     private static final int REQUEST_CAMERA_PERMISSION = 5; // 添加相机权限请求码
 
-    private static final String NOTES_FILE = "notes.json";
 
     private EditText inputArea;
     private Button confirmButton;
@@ -96,10 +95,16 @@ public class FirstActivity extends BaseActivity {
     private Button statisticsButton;
     private Spinner spinnerMood, spinnerTag, spinnerType;
     private LinearLayout listLayout;
-    // ... 其他变量
 
-
-
+    // === 新增：获取当前用户的笔记文件名 ===
+    private String getNotesFileName() {
+        UserManager userManager = new UserManager(this);
+        String currentUser = userManager.getCurrentUser();
+        if (currentUser == null) {
+            currentUser = "guest";
+        }
+        return "notes_" + currentUser + ".json";
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1076,7 +1081,7 @@ public class FirstActivity extends BaseActivity {
     private void saveNotesToFile() {
         try {
             String json = gson.toJson(notesList);
-            FileOutputStream fos = openFileOutput(NOTES_FILE, MODE_PRIVATE);
+            FileOutputStream fos = openFileOutput(getNotesFileName(), MODE_PRIVATE);
             fos.write(json.getBytes());
             fos.close();
         } catch (Exception e) {
@@ -1087,7 +1092,7 @@ public class FirstActivity extends BaseActivity {
 
     private void loadNotesFromFile() {
         try {
-            FileInputStream fis = openFileInput(NOTES_FILE);
+            FileInputStream fis = openFileInput(getNotesFileName());
             byte[] buffer = new byte[fis.available()];
             fis.read(buffer);
             fis.close();

@@ -33,6 +33,7 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -262,12 +263,14 @@ public class StatisticsActivity extends BaseActivity {
     private void setupMonthNavigation() {
         btnPreviousMonth.setOnClickListener(v -> {
             currentCalendar.add(Calendar.MONTH, -1);
-            displayMoodHeatmap();
+            YOUR_API_KEY_HERE();
+            displayMoodHeatmap(); // 原有的日历更新
         });
 
         btnNextMonth.setOnClickListener(v -> {
             currentCalendar.add(Calendar.MONTH, 1);
-            displayMoodHeatmap();
+            YOUR_API_KEY_HERE();
+            displayMoodHeatmap(); // 原有的日历更新
         });
     }
 
@@ -1452,19 +1455,36 @@ public class StatisticsActivity extends BaseActivity {
 
 
     private void YOUR_API_KEY_HERE() {
-        // 创建统计对象并计算
-        statistics = new NoteStatistics();
-        statistics.calculateStatistics(notesList);
+        // 1. 获取当前选中年份和月份
+        int selectedYear = currentCalendar.get(Calendar.YEAR);
+        int selectedMonth = currentCalendar.get(Calendar.MONTH) + 1;
 
-        // 显示基本统计
+        // 2. 手动筛选出选中月份的笔记列表
+        List<Note> selectedMonthNotes = new ArrayList<>();
+        for (Note note : notesList) {
+            if (isNoteInMonth(note, selectedYear, selectedMonth)) {
+                selectedMonthNotes.add(note);
+            }
+        }
+
+        // 3. 创建统计对象并计算（这里恢复 new，防止后面崩溃）
+        statistics = new NoteStatistics();
+
+        // === 关键修改：传入筛选后的列表，而不是全部 notesList ===
+        // 这样 statistics 对象内部的数据就是“选中月”的数据了
+        statistics.calculateStatistics(selectedMonthNotes);
+
+        // 4. 显示基本统计（这四个卡片现在会显示正确的月份）
         displayBasicStatistics();
 
-        // 显示活动图表
+        // 5. 显示活动图表（柱状图，现在基于选中月数据）
         displayActivityChart();
 
-        // 显示心情热力图
+        // 6. 显示心情热力图（日历，不受此影响）
         displayMoodHeatmap();
     }
+
+
 
     private void displayBasicStatistics() {
         tvMonthlyRecords.setText(String.valueOf(statistics.getMonthlyRecords()));
