@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="#f0f0f0"
-    android:padding="9dp">
+    android:padding="6dp">
 
     <LinearLayout
         android:id="@+id/nav_record"
@@ -15,14 +15,27 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="6dp">
+        android:padding="2dp"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_record_blue"
-            android:scaleType="center"
-            app:tint="@color/nav_icon_color" />
+            android:id="@+id/icon_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_new_record"
+            android:adjustViewBounds="true"
+            app:tint="#999999" />
+
+        <TextView
+            android:id="@+id/text_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="记录"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -33,14 +46,27 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="6dp">
+        android:padding="2dp"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_folder_blue"
-            android:scaleType="center"
-            app:tint="@color/nav_icon_color" />
+            android:id="@+id/icon_organize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_new_folder"
+            android:adjustViewBounds="true"
+            app:tint="#999999" />
+
+        <TextView
+            android:id="@+id/text_organize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="整理"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -51,14 +77,26 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="6dp">
+        android:padding="2dp"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_chart_blue"
-            android:scaleType="center"
-            app:tint="@color/nav_icon_color"/>
+            android:id="@+id/icon_stats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_new_chart"
+            android:adjustViewBounds="true"
+            app:tint="#999999" />
+
+        <TextView
+            android:id="@+id/text_stats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -69,14 +107,27 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="6dp">
+        android:padding="2dp"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_person_blue"
-            android:scaleType="center"
-            app:tint="@color/nav_icon_color"/>
+            android:id="@+id/icon_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_new_person"
+            android:adjustViewBounds="true"
+            app:tint="#999999" />
+
+        <TextView
+            android:id="@+id/text_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="个人"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 </LinearLayout>

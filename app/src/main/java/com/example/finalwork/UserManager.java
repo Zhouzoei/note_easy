@@ -69,6 +69,7 @@ public class UserManager {
     }
 
     // 注册用户
+    // 注册用户
     public boolean register(String username, String password) {
         if (username == null || username.length() < 3 || username.length() > 20) {
             return false;
@@ -77,16 +78,18 @@ public class UserManager {
             return false;
         }
 
+        // 获取现有用户列表
         Set<String> users = getUsers();
 
         if (users.contains(username)) {
             return false;
         }
 
-        users.add(username);
+        Set<String> newUsers = new HashSet<>(users);
+        newUsers.add(username);
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putStringSet(KEY_USERS, users);
+        editor.putStringSet(KEY_USERS, newUsers);
         editor.putString(username + "_password", password);
         // 初始化用户信息
         editor.putString(username + "_birthday", "");
@@ -94,6 +97,7 @@ public class UserManager {
 
         return true;
     }
+
 
     // 用户登录
     public boolean login(String username, String password) {
@@ -120,9 +124,12 @@ public class UserManager {
     }
 
     // 获取所有用户
+    // 获取所有用户
     private Set<String> getUsers() {
-        return sharedPreferences.getStringSet(KEY_USERS, new HashSet<String>());
+        Set<String> storedUsers = sharedPreferences.getStringSet(KEY_USERS, new HashSet<String>());
+        return new HashSet<>(storedUsers);
     }
+
 
     // 设置当前用户
     private void setCurrentUser(String username) {
@@ -168,16 +175,22 @@ public class UserManager {
         // 迁移用户数据
         String birthday = getUserBirthday(oldUsername);
 
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        // 删除旧用户数据
+        // 获取现有用户（副本）
         Set<String> users = getUsers();
-        users.remove(oldUsername);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // 删除旧用户数据
+        Set<String> newUsers = new HashSet<>(users);
+        newUsers.remove(oldUsername);
+
         editor.remove(oldUsername + "_password");
         editor.remove(oldUsername + "_birthday");
+        editor.remove(oldUsername + "_avatar_path"); // 记得也要清理头像路径
 
         // 添加新用户数据
-        users.add(newUsername);
-        editor.putStringSet(KEY_USERS, users);
+        newUsers.add(newUsername);
+        editor.putStringSet(KEY_USERS, newUsers);
         editor.putString(newUsername + "_password", storedPassword);
         editor.putString(newUsername + "_birthday", birthday);
 
@@ -189,4 +202,5 @@ public class UserManager {
         editor.apply();
         return true;
     }
+
 }

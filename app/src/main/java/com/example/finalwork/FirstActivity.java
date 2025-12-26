@@ -1177,71 +1177,31 @@ public class FirstActivity extends BaseActivity {
         LinearLayout navStats = findViewById(R.id.nav_stats);
         LinearLayout navProfile = findViewById(R.id.nav_profile);
 
-        // 设置初始选中状态
-        setSelectedTab(navRecord);
+        // 0 = 记录
+        BottomNavHelper.setSelectedTab(this, 0);
 
-        // 记录页点击 - 已经在当前页，无需跳转
         navRecord.setOnClickListener(v -> {
-            // 如果已经在FirstActivity，只需更新选中状态
-            setSelectedTab(navRecord);
+            BottomNavHelper.setSelectedTab(this, 0);
+            // 已经在当前页，无需跳转
         });
 
-        // 整理页点击
         navOrganize.setOnClickListener(v -> {
-            setSelectedTab(navOrganize);
-            Intent organizeIntent = new Intent(FirstActivity.this, OrganizeActivity.class);
-            startActivity(organizeIntent);
+            BottomNavHelper.setSelectedTab(this, 1);
+            Intent intent = new Intent(FirstActivity.this, OrganizeActivity.class);
+            startActivity(intent);
         });
 
-        // 统计页点击
         navStats.setOnClickListener(v -> {
-            setSelectedTab(navStats);
-            Intent statsIntent = new Intent(FirstActivity.this, StatisticsActivity.class);
-            startActivity(statsIntent);
+            BottomNavHelper.setSelectedTab(this, 2);
+            Intent intent = new Intent(FirstActivity.this, StatisticsActivity.class);
+            startActivity(intent);
         });
 
-        // 个人页点击
         navProfile.setOnClickListener(v -> {
-            setSelectedTab(navProfile);
-            Intent profileIntent = new Intent(FirstActivity.this, MainActivity.class);
-            startActivity(profileIntent);
+            BottomNavHelper.setSelectedTab(this, 3);
+            Intent intent = new Intent(FirstActivity.this, MainActivity.class);
+            startActivity(intent);
         });
     }
 
-    // 在setupBottomNavigation()方法后面添加/修改以下方法：
-
-    private void setSelectedTab(LinearLayout selectedTab) {
-        resetTabStyles();
-        selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
-
-        // 新的单层结构：只有一个ImageView作为子View
-        if (selectedTab.getChildCount() > 0) {
-            View child = selectedTab.getChildAt(0);
-            if (child instanceof ImageView) {
-                ImageView imageView = (ImageView) child;
-                // 设置选中状态的图标颜色（深蓝色）
-                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
-            }
-        }
-    }
-
-    private void resetTabStyles() {
-        int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
-
-        for (int id : navIds) {
-            LinearLayout tab = findViewById(id);
-            if (tab != null) {
-                tab.setBackgroundColor(Color.TRANSPARENT);
-
-                // 重置图标颜色为未选中状态（浅蓝色）
-                if (tab.getChildCount() > 0) {
-                    View child = tab.getChildAt(0);
-                    if (child instanceof ImageView) {
-                        ImageView imageView = (ImageView) child;
-                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
-                    }
-                }
-            }
-        }
-    }
 }

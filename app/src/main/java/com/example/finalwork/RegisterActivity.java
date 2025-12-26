@@ -71,6 +71,7 @@ public class RegisterActivity extends BaseActivity {
         if (userManager.register(username, password)) {
             userManager.login(username, password);
             showToast("注册成功");
+            DiaryManager.getInstance(this).reload();
             navigateToMain();
         } else {
             showError("用户名已存在");

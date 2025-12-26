@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class StatisticsActivity extends BaseActivity {
 
-    private static final String NOTES_FILE = "notes.json";
+
 
     private TextView tvMonthlyRecords, tvTotalPhotos, tvPrimaryMood, tvCommonTags, tvHeatmapTitle;
     private LinearLayout activityChartContainer, chartLabelsContainer, moodHeatmapContainer;
@@ -57,6 +57,14 @@ public class StatisticsActivity extends BaseActivity {
     private ImageView btnPreviousMonth, btnNextMonth;
     private DiaryManager diaryManager;
     private MediaPlayer mediaPlayer;
+    private String getNotesFileName() {
+        UserManager userManager = new UserManager(this);
+        String currentUser = userManager.getCurrentUser();
+        if (currentUser == null) {
+            currentUser = "guest";
+        }
+        return "notes_" + currentUser + ".json";
+    }
 
 
 
@@ -957,8 +965,8 @@ public class StatisticsActivity extends BaseActivity {
             photosGridContainer.setVisibility(View.VISIBLE);
             photosGridContainer.removeAllViews();
 
-            // 添加照片预览（每行3个，最多显示9张）
-            int maxPhotosToShow = Math.min(photoCount, 9);
+            int maxPhotosToShow = photoCount;
+
             LinearLayout currentRow = null;
 
             for (int i = 0; i < maxPhotosToShow; i++) {
@@ -974,6 +982,7 @@ public class StatisticsActivity extends BaseActivity {
                 }
 
                 if (currentRow != null) {
+
                     addPhotoItem(currentRow, photoPaths.get(i));
                 }
             }
@@ -1200,6 +1209,8 @@ public class StatisticsActivity extends BaseActivity {
         }
     }
 
+    // 在 StatisticsActivity.java 中找到 addPhotoItem 方法
+
     // 添加照片项到容器
     private void addPhotoItem(LinearLayout rowContainer, String imagePath) {
         ImageView imageView = new ImageView(this);
@@ -1226,8 +1237,13 @@ public class StatisticsActivity extends BaseActivity {
             e.printStackTrace();
         }
 
+        imageView.setOnClickListener(v -> {
+            showLargeImage(imagePath);
+        });
+
         rowContainer.addView(imageView);
     }
+
 
     // 添加心情分布项
     private void addMoodDistributionItem(LinearLayout container, String mood, int count, int totalNotes) {
@@ -1412,7 +1428,10 @@ public class StatisticsActivity extends BaseActivity {
 
     private void loadNotes() {
         try {
-            FileInputStream fis = openFileInput(NOTES_FILE);
+            // === 修改：使用动态文件名 ===
+            FileInputStream fis = openFileInput(getNotesFileName());
+            // ========================
+
             byte[] buffer = new byte[fis.available()];
             fis.read(buffer);
             fis.close();
@@ -1426,9 +1445,11 @@ public class StatisticsActivity extends BaseActivity {
                 notesList.addAll(loadedNotes);
             }
         } catch (Exception e) {
+            // 如果是新用户，文件不存在，这里会 catch 到异常，清空列表是正确的行为
             notesList.clear();
         }
     }
+
 
     private void YOUR_API_KEY_HERE() {
         // 创建统计对象并计算
@@ -1763,66 +1784,29 @@ public class StatisticsActivity extends BaseActivity {
         LinearLayout navStats = findViewById(R.id.nav_stats);
         LinearLayout navProfile = findViewById(R.id.nav_profile);
 
-        setSelectedTab(navStats);
+        // 2 = 统计
+        BottomNavHelper.setSelectedTab(this, 2);
 
-        // 记录页面
         navRecord.setOnClickListener(v -> {
-            Intent recordIntent = new Intent(StatisticsActivity.this, FirstActivity.class);
-            startActivity(recordIntent);
-            finish(); // 关闭当前统计页面
+            Intent intent = new Intent(StatisticsActivity.this, FirstActivity.class);
+            startActivity(intent);
+            finish();
         });
 
-        // 整理页面
         navOrganize.setOnClickListener(v -> {
-            Intent organizeIntent = new Intent(StatisticsActivity.this, OrganizeActivity.class);
-            startActivity(organizeIntent);
+            Intent intent = new Intent(StatisticsActivity.this, OrganizeActivity.class);
+            startActivity(intent);
             finish();
         });
 
-        // 统计页面 - 不需要跳转
-        navStats.setOnClickListener(v -> setSelectedTab(navStats));
+        navStats.setOnClickListener(v -> {
+            BottomNavHelper.setSelectedTab(this, 2);
+        });
 
-        // 个人页面
         navProfile.setOnClickListener(v -> {
-            Intent profileIntent = new Intent(StatisticsActivity.this, MainActivity.class);
-            startActivity(profileIntent);
+            Intent intent = new Intent(StatisticsActivity.this, MainActivity.class);
+            startActivity(intent);
             finish();
         });
-    }
-
-    private void setSelectedTab(LinearLayout selectedTab) {
-        resetTabStyles();
-        selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
-
-        // 根据新的XML结构，直接修改ImageView的颜色
-        if (selectedTab.getChildCount() > 0) {
-            View child = selectedTab.getChildAt(0);
-            if (child instanceof ImageView) {
-                ImageView imageView = (ImageView) child;
-                // 选中状态：深蓝色
-                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
-            }
-        }
-    }
-
-    private void resetTabStyles() {
-        int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
-
-        for (int id : navIds) {
-            LinearLayout tab = findViewById(id);
-            if (tab != null) {
-                tab.setBackgroundColor(Color.TRANSPARENT);
-
-                // 重置图标颜色为未选中状态
-                if (tab.getChildCount() > 0) {
-                    View child = tab.getChildAt(0);
-                    if (child instanceof ImageView) {
-                        ImageView imageView = (ImageView) child;
-                        // 未选中状态：浅蓝色
-                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
-                    }
-                }
-            }
-        }
     }
 }

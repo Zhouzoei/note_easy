@@ -57,6 +57,7 @@ public class LoginActivity extends BaseActivity {
 
         if (userManager.login(username, password)) {
             showToast("登录成功");
+            DiaryManager.getInstance(this).reload();
             navigateToMain();
         } else {
             showError("用户名或密码错误");

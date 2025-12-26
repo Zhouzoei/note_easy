@@ -268,70 +268,33 @@ public class MainActivity extends BaseActivity {
         LinearLayout navStats = findViewById(R.id.nav_stats);
         LinearLayout navProfile = findViewById(R.id.nav_profile);
 
-        // 设置当前页面为选中状态
-        setSelectedTab(navProfile);
+        // 3 = 个人
+        BottomNavHelper.setSelectedTab(this, 3);
 
-        // 记录页面
         navRecord.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, FirstActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
-            finish(); // 结束当前页面
+            finish();
         });
 
-        // 整理页面
         navOrganize.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, OrganizeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
-            finish(); // 结束当前页面
+            finish();
         });
 
-        // 统计页面
         navStats.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
-            finish(); // 结束当前页面
+            finish();
         });
 
-        // 个人页面 - 已经在当前页面，只需更新样式
-        navProfile.setOnClickListener(v -> setSelectedTab(navProfile));
+        navProfile.setOnClickListener(v -> {
+            BottomNavHelper.setSelectedTab(this, 3);
+        });
     }
 
-    private void setSelectedTab(LinearLayout selectedTab) {
-        resetTabStyles();
-        selectedTab.setBackgroundColor(Color.parseColor("#E3F2FD"));
-
-        // 根据新的XML结构，直接修改ImageView的颜色
-        if (selectedTab.getChildCount() > 0) {
-            View child = selectedTab.getChildAt(0);
-            if (child instanceof ImageView) {
-                ImageView imageView = (ImageView) child;
-                // 选中状态：深蓝色
-                imageView.setColorFilter(Color.parseColor("#2196F3"), android.graphics.PorterDuff.Mode.SRC_IN);
-            }
-        }
-    }
-
-    private void resetTabStyles() {
-        int[] navIds = {R.id.nav_record, R.id.nav_organize, R.id.nav_stats, R.id.nav_profile};
-
-        for (int id : navIds) {
-            LinearLayout tab = findViewById(id);
-            if (tab != null) {
-                tab.setBackgroundColor(Color.TRANSPARENT);
-
-                // 重置图标颜色为未选中状态
-                if (tab.getChildCount() > 0) {
-                    View child = tab.getChildAt(0);
-                    if (child instanceof ImageView) {
-                        ImageView imageView = (ImageView) child;
-                        // 未选中状态：浅蓝色
-                        imageView.setColorFilter(Color.parseColor("#90CAF9"), android.graphics.PorterDuff.Mode.SRC_IN);
-                    }
-                }
-            }
-        }
-    }
 }

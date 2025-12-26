@@ -105,29 +105,40 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="12dp" />
 
-        <!-- 网格布局容器 -->
-        <LinearLayout
-            android:id="@+id/photosGridContainer"
+        <!-- ====== 新增：添加滚动视图 ====== -->
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="280dp"
-            android:orientation="vertical"
-            android:background="@android:color/transparent"
-            android:gravity="center"
-            android:padding="8dp">
+            android:fillViewport="true"
+            android:scrollbars="vertical">
 
-            <!-- 这里通过Java代码动态添加照片 -->
-            <!-- 默认显示无照片提示 -->
-            <TextView
-                android:id="@+id/tvNoPhotos"
-                android:layout_width="wrap_content"
+            <!-- 网格布局容器 -->
+            <!-- 注意：height 改为了 wrap_content，不再限制为 280dp -->
+            <LinearLayout
+                android:id="@+id/photosGridContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="本月暂无照片"
-                android:textSize="14sp"
-                android:textColor="@color/text_gray"
-                android:gravity="center"
-                android:visibility="visible" />
+                android:orientation="vertical"
+                android:background="@android:color/transparent"
+                android:padding="8dp">
 
-        </LinearLayout>
+                <!-- 这里通过Java代码动态添加照片 -->
+                <!-- 默认显示无照片提示 -->
+                <TextView
+                    android:id="@+id/tvNoPhotos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="本月暂无照片"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_gray"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+        </ScrollView>
+        <!-- ====== 滚动视图结束 ====== -->
 
     </LinearLayout>
 

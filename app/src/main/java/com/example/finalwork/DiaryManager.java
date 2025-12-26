@@ -18,15 +18,17 @@ import java.util.Map;
 
 public class DiaryManager {
 
-    private static final String DIARY_FILE = "diaries.json";
-    private static final String TODAY_DIARY_FILE = "today_diary_cache.json";
+    // 移除固定的文件名常量，改为动态生成
+    // private static final String DIARY_FILE = "diaries.json";
+
+    private static final String TODAY_DIARY_FILE_PREFIX = "today_diary_cache_"; // 今日缓存也需要隔离
     private static DiaryManager instance;
     private Context context;
     private Gson gson;
     private List<Diary> diaries;
 
     private DiaryManager(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext(); // 使用Application Context防止内存泄漏
         this.gson = new Gson();
         this.diaries = new ArrayList<>();
         loadDiaries();
@@ -37,6 +39,28 @@ public class DiaryManager {
             instance = new DiaryManager(context);
         }
         return instance;
+    }
+
+    /**
+     * 获取当前用户的专属文件名
+     */
+    private String getDiaryFileName() {
+        UserManager userManager = new UserManager(context);
+        String currentUser = userManager.getCurrentUser();
+        if (currentUser == null) {
+            currentUser = "guest"; // 防止空指针，未登录时暂存为guest
+        }
+        return "diaries_" + currentUser + ".json";
+    }
+
+    /**
+     * 获取今日缓存文件名
+     */
+    private String getTodayCacheFileName() {
+        UserManager userManager = new UserManager(context);
+        String currentUser = userManager.getCurrentUser();
+        if (currentUser == null) currentUser = "guest";
+        return TODAY_DIARY_FILE_PREFIX + currentUser + ".json";
     }
 
     /**
@@ -67,18 +91,16 @@ public class DiaryManager {
     }
 
     /**
-     * 保存今日日记到缓存
+     * 保存今日日记到缓存 (修改为动态文件名)
      */
     public void saveTodayDiary(String content, List<String> imagePaths, List<String> voicePaths) {
         try {
             String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-
-            // 创建今日日记缓存对象
             TodayDiaryCache cache = new TodayDiaryCache(currentDate, content, imagePaths, voicePaths);
 
-            // 保存到文件
             String json = gson.toJson(cache);
-            FileOutputStream fos = context.openFileOutput(TODAY_DIARY_FILE, Context.MODE_PRIVATE);
+            // 使用动态文件名
+            FileOutputStream fos = context.openFileOutput(getTodayCacheFileName(), Context.MODE_PRIVATE);
             fos.write(json.getBytes());
             fos.close();
 
@@ -88,12 +110,12 @@ public class DiaryManager {
     }
 
     /**
-     * 加载今日日记缓存
+     * 加载今日日记缓存 (修改为动态文件名)
      */
     public TodayDiaryCache loadTodayDiary() {
         try {
-            // 读取缓存文件
-            FileInputStream fis = context.openFileInput(TODAY_DIARY_FILE);
+            // 使用动态文件名
+            FileInputStream fis = context.openFileInput(getTodayCacheFileName());
             byte[] buffer = new byte[fis.available()];
             fis.read(buffer);
             fis.close();
@@ -117,11 +139,11 @@ public class DiaryManager {
     }
 
     /**
-     * 清除今日日记缓存
+     * 清除今日日记缓存 (修改为动态文件名)
      */
     public void clearTodayDiary() {
         try {
-            java.io.File cacheFile = new java.io.File(context.getFilesDir(), TODAY_DIARY_FILE);
+            java.io.File cacheFile = new java.io.File(context.getFilesDir(), getTodayCacheFileName());
             if (cacheFile.exists()) {
                 cacheFile.delete();
             }
@@ -187,12 +209,13 @@ public class DiaryManager {
     }
 
     /**
-     * 保存日记到文件
+     * 保存日记到文件 (修改为动态文件名)
      */
     private void saveDiaries() {
         try {
             String json = gson.toJson(diaries);
-            FileOutputStream fos = context.openFileOutput(DIARY_FILE, Context.MODE_PRIVATE);
+            // 使用动态文件名：getDiaryFileName()
+            FileOutputStream fos = context.openFileOutput(getDiaryFileName(), Context.MODE_PRIVATE);
             fos.write(json.getBytes());
             fos.close();
         } catch (Exception e) {
@@ -201,11 +224,12 @@ public class DiaryManager {
     }
 
     /**
-     * 从文件加载日记
+     * 从文件加载日记 (修改为动态文件名)
      */
     private void loadDiaries() {
         try {
-            FileInputStream fis = context.openFileInput(DIARY_FILE);
+            // 使用动态文件名：getDiaryFileName()
+            FileInputStream fis = context.openFileInput(getDiaryFileName());
             byte[] buffer = new byte[fis.available()];
             fis.read(buffer);
             fis.close();
@@ -219,6 +243,7 @@ public class DiaryManager {
                 diaries.addAll(loadedDiaries);
             }
         } catch (Exception e) {
+            // 如果文件不存在（新用户），清空列表即可
             diaries.clear();
         }
     }
@@ -289,4 +314,10 @@ public class DiaryManager {
             this.voicePaths = voicePaths != null ? new ArrayList<>(voicePaths) : new ArrayList<>();
         }
     }
+    // 在 DiaryManager.java 中添加
+    public void reload() {
+        diaries.clear();
+        loadDiaries();
+    }
+
 }

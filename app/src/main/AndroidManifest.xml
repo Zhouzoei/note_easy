@@ -63,7 +63,8 @@
             android:name=".FirstActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.FinalWork" />
+            android:theme="@style/Theme.FinalWork"
+            android:windowSoftInputMode="adjustPan"/>
 
         <!-- 个人页面 -->
         <activity
@@ -84,14 +85,16 @@
             android:name=".OrganizeActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.FinalWork"/>
+            android:theme="@style/Theme.FinalWork"
+            android:windowSoftInputMode="adjustPan"/>
 
         <!-- 设置页面 -->
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.FinalWork"/>
+            android:theme="@style/Theme.FinalWork"
+            android:windowSoftInputMode="adjustPan"/>
 
         <!-- 语音录制对话框（如果作为Activity使用） -->
         <!-- <activity

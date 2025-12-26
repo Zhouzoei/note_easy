@@ -122,6 +122,7 @@ public class SettingsActivity extends BaseActivity {
             if (!TextUtils.isEmpty(oldPassword)) {
                 if (userManager.changeUsername(currentUser, newUsername, oldPassword)) {
                     currentUser = newUsername; // 更新当前用户名
+                    renameUserDataFile(currentUser, newUsername);
                     hasChanges = true;
                     showToast("用户名修改成功");
                 } else {
@@ -175,5 +176,25 @@ public class SettingsActivity extends BaseActivity {
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+    private void renameUserDataFile(String oldUsername, String newUsername) {
+        try {
+            String oldFileName = "diaries_" + oldUsername + ".json";
+            String newFileName = "diaries_" + newUsername + ".json";
+
+            java.io.File oldFile = new java.io.File(getFilesDir(), oldFileName);
+            java.io.File newFile = new java.io.File(getFilesDir(), newFileName);
+
+            if (oldFile.exists()) {
+                boolean success = oldFile.renameTo(newFile);
+                if (success) {
+                    android.util.Log.d("SettingsActivity", "日记文件重命名成功");
+                } else {
+                    android.util.Log.e("SettingsActivity", "日记文件重命名失败");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
