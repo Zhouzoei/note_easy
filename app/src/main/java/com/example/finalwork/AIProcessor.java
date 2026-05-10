@@ -24,7 +24,7 @@ import java.util.Map;
 public class AIProcessor {
 
     // ==================== 智谱AI配置 ====================
-    private static final String ZHIPU_API_KEY = "YOUR_API_KEY_HERE.JJRrbfVN7ujgrKKy"; // 替换为你的智谱API Key
+    private static final String ZHIPU_API_KEY = "ZHIPU_API_KEY"; // 替换为你的智谱API Key或者在环境中进行配置
     private static final String ZHIPU_API_URL = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
 
     // 使用GLM-4.5-Flash模型（推荐用于文本处理）
