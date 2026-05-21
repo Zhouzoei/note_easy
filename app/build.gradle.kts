@@ -16,6 +16,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 从 gradle.properties 读取 API Key 注入 BuildConfig
+        // 使用方：BuildConfig.DEEPSEEK_API_KEY
+        val deepseekApiKey: String = project.findProperty("DEEPSEEK_API_KEY") as? String ?: ""
+        buildConfigField("String", "DEEPSEEK_API_KEY", "\"${deepseekApiKey}\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
     }
 
     buildTypes {
@@ -33,9 +43,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 
@@ -55,6 +62,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("com.google.code.gson:gson:2.8.9")
     implementation(libs.firebase.crashlytics.buildtools)
+    // 安全加密存储（用于密码等敏感数据）
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

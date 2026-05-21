@@ -390,39 +390,39 @@ public class OrganizeActivity extends BaseActivity {
             // 调用AI处理 - 传递选中的笔记而不是所有笔记
             aiProcessor.processNotes(selectedNotesList, selectedStyle, new AIProcessor.AIProcessCallback() {
 
+                @Override
+                public void onStreamContent(String partialContent) {
+                    runOnUiThread(() -> {
+                        if (aiResultText.getText().toString().startsWith("🤖")) {
+                            aiResultText.setText("");
+                        }
+                        aiResultText.append(partialContent);
+                    });
+                }
 
                 @Override
                 public void onSuccess(String aiText, List<String> imagePaths, List<String> voicePaths) {
                     runOnUiThread(() -> {
-                        // 1. 显示AI生成的文字（保持原有格式）
                         displayAIText(aiText);
 
-                        // 2. 显示原图片（保持原有）
                         displayOriginalImages(imagePaths);
-
-                        // 3. 显示原语音（保持原有）
                         displayOriginalVoices(voicePaths);
 
-                        // 4. 恢复按钮状态
                         aiProcessBtn.setEnabled(true);
                         aiProcessBtn.setText("🤖 AI整合碎片");
 
-                        // 5. 显示操作按钮
                         btnEditResult.setVisibility(View.VISIBLE);
                         btnSaveResult.setVisibility(View.VISIBLE);
                         btnClearResult.setVisibility(View.VISIBLE);
 
-                        // 6. 保存当前结果
                         currentDiaryContent = aiText;
                         currentImagePaths = imagePaths;
                         currentVoicePaths = voicePaths;
 
-                        // 7. 更新状态
                         diaryStatus.setText("已生成");
                         diaryStatus.setBackgroundColor(Color.parseColor("#E8F5E8"));
                         diaryStatus.setTextColor(Color.parseColor("#4CAF50"));
 
-                        // 8. 自动切换到日记Tab
                         switchToDiaryTab();
 
                         Toast.makeText(OrganizeActivity.this,
@@ -432,9 +432,13 @@ public class OrganizeActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onFailure(String error) {
+                public void onFailure(String error, int errorCode) {
                     runOnUiThread(() -> {
-                        aiResultText.setText("❌ AI整合失败\n\n错误原因：" + error);
+                        String errorIcon = "❌";
+                        if (errorCode == AIProcessor.ERROR_AUTH) errorIcon = "🔑";
+                        else if (errorCode == AIProcessor.ERROR_NETWORK || errorCode == AIProcessor.ERROR_TIMEOUT) errorIcon = "🌐";
+                        else if (errorCode == AIProcessor.ERROR_RATE_LIMIT) errorIcon = "⏳";
+                        aiResultText.setText(errorIcon + " AI整合失败\n\n错误码: " + errorCode + "\n错误原因：" + error);
                         aiProcessBtn.setEnabled(true);
                         aiProcessBtn.setText("🤖 重新尝试");
                     });
@@ -443,7 +447,11 @@ public class OrganizeActivity extends BaseActivity {
                 @Override
                 public void onProgress(String progress) {
                     runOnUiThread(() -> {
-                        aiResultText.setText("🤖 " + progress + "\n请稍候...");
+                        if (!aiResultText.getText().toString().startsWith("🤖")) {
+                            aiResultText.setText("🤖 " + progress + "\n请稍候...");
+                        } else {
+                            aiResultText.setText("🤖 " + progress + "\n请稍候...");
+                        }
                     });
                 }
             });
